@@ -1,55 +1,139 @@
-import { InputChangeEventDetail, IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonList, IonMenuButton, IonPage, IonTitle, IonToolbar } from '@ionic/react';
+import { InputChangeEventDetail, IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonList, IonMenuButton, IonPage, IonTextarea, IonTitle, IonToolbar } from '@ionic/react';
 import MainMenu from '../../components/MainMenu/MainMenu';
 import { useState } from 'react';
 import { closeCircleOutline } from 'ionicons/icons';
+import './CreateJob.css'
 
-interface Painter { id: number; name: string }
-interface Job { name?: string, number?: number, painters?: Painter }
+interface Painter { id: number, name: string }
+interface Note { id: number, note: string }
+interface PaintColor { id: number, name: string, pantone: string, brand: string, type: string, finish: string }
+interface Job { name?: string, number?: number, painters?: Painter[], notes?: Note[], paintColors?: PaintColor[] }
 
 const CreateJob: React.FC = () => {
-  const [newJob, setNewJob] = useState<Job>({});
-  const [painters, setPainters] = useState<Painter[]>([]);
-
+  const [newJob, setNewJob] = useState<Job>({ painters: [] });
+  const myColorInfo = [ 'name', 'pantone','brand','type','finish']
+  
+  // *********************** PAINTERS ***********************
   const handleNameChanged = (event: CustomEvent<InputChangeEventDetail>) => {
     setNewJob({ ...newJob, name: event.detail.value ?? '' });
   };
-
   const handleNumberChange = (event: CustomEvent<InputChangeEventDetail>) => {
     const numValue = event.detail.value ? parseFloat(event.detail.value) : undefined;
     setNewJob({ ...newJob, number: numValue });
   };
-
   const handlePainterNameChange = (event: CustomEvent<InputChangeEventDetail>, myId: number) => {
-    setPainters(painters.map(painter => 
-      painter.id === myId ? { ...painter, name: event.detail.value ?? '' } : painter
-    ));
+    if (newJob.painters) {
+      const updatedPainters = newJob.painters.map(painter =>
+        painter.id === myId ? { ...painter, name: event.detail.value ?? '' } : painter
+      );
+      setNewJob({ ...newJob, painters: updatedPainters });
+    }
   };
-
   const handleAddPainter = () => {
-    // Dummy implementation for adding a painter item
-    const newId = painters.length > 0 ? painters[painters.length - 1].id + 1 : 1;
+    const newId = newJob.painters && newJob.painters.length > 0 
+                 ? newJob.painters[newJob.painters.length - 1].id + 1
+                 : 1;
     const newPainter = { id: newId, name: '' };
-    setPainters([...painters, newPainter]);
+    setNewJob({ ...newJob, painters: [...(newJob.painters || []), newPainter] });
+  };
+  const handleRemovePainter = (myId: number) => {
+    const filteredPainters = newJob.painters?.filter(painter => painter.id !== myId) || [];
+    setNewJob({ ...newJob, painters: filteredPainters });
   };
 
-  const handleRemovePainter = (myId: any) => {
-    const filteredPainters = painters.filter(painter => painter.id !== myId);
-    setPainters(filteredPainters);
+  // *********************** NOTES ***********************
+  const handleAddNote = () => {
+    const newId = newJob.notes && newJob.notes.length > 0 
+                  ? newJob.notes[newJob.notes.length - 1].id + 1
+                  : 1;
+    const newNote = { id: newId, title: '', note: '' };
+    setNewJob({ ...newJob, notes: [...(newJob.notes || []), newNote] });
+  };
+  const handleRemoveNote = (myId: number) => {
+    const filteredNotes = newJob.notes?.filter(note => note.id !== myId) || [];
+    setNewJob({ ...newJob, notes: filteredNotes });
+  };
+  const handleNoteChange = (event: CustomEvent<InputChangeEventDetail>, myId: number) => {
+    if (newJob.notes) {
+      const updatedNotes = newJob.notes.map(note =>
+        note.id === myId ? { ...note, note: event.detail.value ?? '' } : note
+      );
+      setNewJob({ ...newJob, notes: updatedNotes });
+    }
   };
 
+  // *********************** PAINT COLORS ***********************
+  const handleAddPaintColor = () => {
+    const newId = newJob.paintColors && newJob.paintColors.length > 0 
+                  ? newJob.paintColors[newJob.paintColors.length - 1].id + 1
+                  : 1;
+    const newPaintColor = { id: newId, name: '', pantone: '', brand: '', type: '', finish: '' };
+    setNewJob({ ...newJob, paintColors: [...(newJob.paintColors || []), newPaintColor] });
+  };
+  const handleRemovePaintColor = (myId: number) => {
+    const filteredPaintColors = newJob.paintColors?.filter(paintColor => paintColor.id !== myId) || [];
+    setNewJob({ ...newJob, paintColors: filteredPaintColors });
+  };
+const handlePaintColorChange = (event: CustomEvent<InputChangeEventDetail>, myId: number, myValue: string) => {
+  if (newJob.paintColors) {
+    const updatedPaintColors = newJob.paintColors.map(paintColor =>
+      paintColor.id === myId ? { ...paintColor, [myValue]: event.detail.value ?? '' } : paintColor
+    );
+    setNewJob({ ...newJob, paintColors: updatedPaintColors });
+  }
+};
+
+  // *********************** DISPLAYS ***********************
   const displayPainters = () => {
-    return painters.map(painter => (
-      <IonItem key={painter.id}>
-        <IonInput
-          labelPlacement="floating"
-          label='Painter'
-          onIonChange={(e) => handlePainterNameChange(e, painter.id)}
-        ></IonInput>
-        <IonIcon onClick={(e) => handleRemovePainter(painter.id)} slot="end" icon={closeCircleOutline} size="small"></IonIcon>
-      </IonItem>
-    ));
+    return newJob.painters?.map(painter => (
+      <IonList key={painter.id}>
+        <div className='flex'>
+          <IonInput
+            placeholder='Enter Painter Name'
+            onIonInput={(e) => handlePainterNameChange(e, painter.id)}
+          ></IonInput>
+          <IonIcon onClick={() => handleRemovePainter(painter.id)} slot="end" icon={closeCircleOutline} size="small"></IonIcon>
+        </div>
+      </IonList>
+    )) || [];
   };
 
+  const displayNotes = () => {
+    return newJob.notes?.map(note => (
+      <IonList key={note.id}>
+        <div className='flex'>
+          <IonTextarea
+            placeholder='Enter Note Here'
+            onIonInput={(e) => handleNoteChange(e, note.id)}
+            autoGrow={true}
+          ></IonTextarea >
+          <IonIcon onClick={() => handleRemoveNote(note.id)} slot="end" icon={closeCircleOutline} size="small"></IonIcon>
+        </div>
+      </IonList>
+    )) || [];
+  };
+
+  const displayPaintColors = () => {
+    return newJob.paintColors?.map(paintColor => (
+      <div className='paintContainer' key={paintColor.id}>
+        {myColorInfo.map((colorAttribute) => (
+          <IonInput
+            class='customBox'
+            key={colorAttribute}
+            label={`${colorAttribute.charAt(0).toUpperCase() + colorAttribute.slice(1)}:`}
+            placeholder={`Enter ${colorAttribute.charAt(0).toUpperCase() + colorAttribute.slice(1)} Here`}
+            onIonInput={(e) => handlePaintColorChange(e, paintColor.id, colorAttribute)}
+            ></IonInput>
+            ))}
+          <IonIcon className='removeMe' onClick={() => handleRemovePaintColor(paintColor.id)} slot="end" icon={closeCircleOutline} size="small"></IonIcon>
+      </div>
+    )) || [];
+  };
+
+  const handleFrank = () => {
+    console.log(newJob);
+  }
+  
   return (
     <>
       <MainMenu />
@@ -63,26 +147,49 @@ const CreateJob: React.FC = () => {
           </IonToolbar>
         </IonHeader>
         <IonContent className="ion-padding">
-          <IonItem>
+          <div>
+            <h3>Job Information</h3>
+          </div>
+          <IonList>
             <IonInput 
-              value={newJob.name} 
-              placeholder="New Job Name" 
-              onIonChange={handleNameChanged}
+              value={newJob.name}
+              label='Job Name:'
+              placeholder='Enter Job Name'
+              onIonInput={handleNameChanged}
             ></IonInput>
-          </IonItem>
-          <IonItem>
             <IonInput
               value={newJob.number?.toString()}
               type="number"
-              placeholder="00000"
-              onIonChange={handleNumberChange}
+              label='Job #:'
+              placeholder='Enter Job #'
+              onIonInput={handleNumberChange}
             ></IonInput>
-          </IonItem>
-            <IonList>
+          </IonList>
+          {newJob.paintColors && newJob.paintColors.length > 0 && (
+            <div>
+              <h3>Paint Colors</h3>
+              {displayPaintColors()}
+            </div>
+          )}
+          {newJob.notes && newJob.notes.length > 0 &&
+            <div>
+              <h3>Notes</h3>
+              {displayNotes()}
+            </div>
+          }
+          {newJob.painters && newJob.painters.length > 0 && (
+            <div>
+              <h3>Painters</h3>
               {displayPainters()}
-            </IonList>
-          <IonButton onClick={handleAddPainter}>Add Painter</IonButton>
+            </div>
+          )}
         </IonContent>
+        <IonFooter className='flex'>
+          <IonButton onClick={handleAddPainter}>Add Painter</IonButton>
+          <IonButton onClick={handleAddNote}>Add Note</IonButton>
+          <IonButton onClick={handleAddPaintColor}>Add Color</IonButton>
+          <IonButton onClick={handleFrank}>Add Image</IonButton>
+        </IonFooter>
       </IonPage>
     </>
   );

@@ -1,0 +1,20 @@
+.noteContainer {
+  background-color: aliceblue;
+}
+
+ion-input.customBox {
+  --padding-start: 10px;
+}
+
+.paintContainer {
+  position: relative;
+  border: solid 1px black;
+  margin-bottom: 1vh;
+}
+
+.removeMe {
+  position: absolute;
+  top: 1.5vh;
+  right: 1.5vh;
+  z-index: 1000;
+}
