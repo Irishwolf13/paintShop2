@@ -2,6 +2,7 @@ import { IonButtons, IonContent, IonHeader, IonMenuButton, IonPage, IonTitle, Io
 import MainMenu from '../../components/MainMenu/MainMenu';
 // import ActionSheet from '../../components/ActionSheet/ActionSheet';
 import './Home.css';
+import { auth } from '../../firebase/config'
 
 const Home: React.FC = () => {
   // const editMe = () => { console.log('I am Edited') }

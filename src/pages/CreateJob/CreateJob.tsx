@@ -3,14 +3,11 @@ import MainMenu from '../../components/MainMenu/MainMenu';
 import { useState } from 'react';
 import { closeCircleOutline } from 'ionicons/icons';
 import './CreateJob.css'
-
-interface Painter { id: number, name: string }
-interface Note { id: number, note: string }
-interface PaintColor { id: number, name: string, pantone: string, brand: string, type: string, finish: string }
-interface Job { name?: string, number?: number, painters?: Painter[], notes?: Note[], paintColors?: PaintColor[] }
+import { createFireBaseJob } from '../../firebase/controller';
+import { Job } from '../../interfaces/interface'
 
 const CreateJob: React.FC = () => {
-  const [newJob, setNewJob] = useState<Job>({ painters: [] });
+  const [newJob, setNewJob] = useState<Job>({});
   const myColorInfo = [ 'name', 'pantone','brand','type','finish']
   
   // *********************** PAINTERS ***********************
@@ -46,7 +43,7 @@ const CreateJob: React.FC = () => {
     const newId = newJob.notes && newJob.notes.length > 0 
                   ? newJob.notes[newJob.notes.length - 1].id + 1
                   : 1;
-    const newNote = { id: newId, title: '', note: '' };
+    const newNote = { id: newId, note: '' };
     setNewJob({ ...newJob, notes: [...(newJob.notes || []), newNote] });
   };
   const handleRemoveNote = (myId: number) => {
@@ -130,9 +127,18 @@ const handlePaintColorChange = (event: CustomEvent<InputChangeEventDetail>, myId
     )) || [];
   };
 
-  const handleFrank = () => {
-    console.log(newJob);
+  const handleAddImage = () => {
+    console.log('add an image')
   }
+
+  const handleCreateJob = async (myJob: Job) => {
+    try {
+      await createFireBaseJob( myJob );
+      console.log('Job updated successfully.');
+    } catch (error) {
+      console.error('Error updating job:', error);
+    }
+  };
   
   return (
     <>
@@ -188,7 +194,8 @@ const handlePaintColorChange = (event: CustomEvent<InputChangeEventDetail>, myId
           <IonButton onClick={handleAddPainter}>Add Painter</IonButton>
           <IonButton onClick={handleAddNote}>Add Note</IonButton>
           <IonButton onClick={handleAddPaintColor}>Add Color</IonButton>
-          <IonButton onClick={handleFrank}>Add Image</IonButton>
+          <IonButton onClick={handleAddImage}>Add Image</IonButton>
+          <IonButton onClick={() => handleCreateJob( newJob )}>Create Job</IonButton>
         </IonFooter>
       </IonPage>
     </>
