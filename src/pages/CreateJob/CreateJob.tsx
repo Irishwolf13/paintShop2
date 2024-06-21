@@ -3,7 +3,7 @@ import MainMenu from '../../components/MainMenu/MainMenu';
 import { useState } from 'react';
 import { closeCircleOutline } from 'ionicons/icons';
 import './CreateJob.css'
-import { createFireBaseJob } from '../../firebase/controller';
+import { createJob, fetchAllJobs } from '../../firebase/controller';
 import { Job } from '../../interfaces/interface'
 
 const CreateJob: React.FC = () => {
@@ -43,7 +43,7 @@ const CreateJob: React.FC = () => {
     const newId = newJob.notes && newJob.notes.length > 0 
                   ? newJob.notes[newJob.notes.length - 1].id + 1
                   : 1;
-    const newNote = { id: newId, note: '' };
+    const newNote = { id: newId, note: '', title:'' };
     setNewJob({ ...newJob, notes: [...(newJob.notes || []), newNote] });
   };
   const handleRemoveNote = (myId: number) => {
@@ -133,7 +133,7 @@ const handlePaintColorChange = (event: CustomEvent<InputChangeEventDetail>, myId
 
   const handleCreateJob = async (myJob: Job) => {
     try {
-      await createFireBaseJob( myJob );
+      await createJob( myJob );
       console.log('Job updated successfully.');
     } catch (error) {
       console.error('Error updating job:', error);
@@ -195,7 +195,7 @@ const handlePaintColorChange = (event: CustomEvent<InputChangeEventDetail>, myId
           <IonButton onClick={handleAddNote}>Add Note</IonButton>
           <IonButton onClick={handleAddPaintColor}>Add Color</IonButton>
           <IonButton onClick={handleAddImage}>Add Image</IonButton>
-          <IonButton onClick={() => handleCreateJob( newJob )}>Create Job</IonButton>
+          <IonButton onClick={() => handleCreateJob(newJob)}>Create Job</IonButton>
         </IonFooter>
       </IonPage>
     </>
