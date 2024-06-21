@@ -61,7 +61,7 @@ const DisplayJobs: React.FC = () => {
       <IonSearchbar
         show-clear-button="always"
         value={searchTerm}
-        placeholder="Search Job Names"
+        placeholder="Search Job Name or Number"
         onIonInput={(e) => handleUserInput(e)}
       ></IonSearchbar>
       <IonList>

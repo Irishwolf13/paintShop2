@@ -1,10 +1,10 @@
-import { InputChangeEventDetail, IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonList, IonMenuButton, IonPage, IonTextarea, IonTitle, IonToolbar } from '@ionic/react';
+import { InputChangeEventDetail, IonButton, IonButtons, IonContent, IonDatetime, IonDatetimeButton, IonFooter, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonList, IonMenuButton, IonModal, IonPage, IonTextarea, IonTitle, IonToolbar } from '@ionic/react';
 import MainMenu from '../../components/MainMenu/MainMenu';
 import { useState } from 'react';
 import { closeCircleOutline } from 'ionicons/icons';
-import './CreateJob.css'
-import { createJob, fetchAllJobs } from '../../firebase/controller';
+import { createJob } from '../../firebase/controller';
 import { Job } from '../../interfaces/interface'
+import './CreateJob.css'
 
 const CreateJob: React.FC = () => {
   const [newJob, setNewJob] = useState<Job>({});
@@ -17,6 +17,9 @@ const CreateJob: React.FC = () => {
   const handleNumberChange = (event: CustomEvent<InputChangeEventDetail>) => {
     const numValue = event.detail.value ? parseFloat(event.detail.value) : undefined;
     setNewJob({ ...newJob, number: numValue });
+  };
+  const handleDateChanged = (event: CustomEvent<InputChangeEventDetail>) => {
+    setNewJob({ ...newJob, date: event.detail.value ?? '' });
   };
   const handlePainterNameChange = (event: CustomEvent<InputChangeEventDetail>, myId: number) => {
     if (newJob.painters) {
@@ -54,6 +57,14 @@ const CreateJob: React.FC = () => {
     if (newJob.notes) {
       const updatedNotes = newJob.notes.map(note =>
         note.id === myId ? { ...note, note: event.detail.value ?? '' } : note
+      );
+      setNewJob({ ...newJob, notes: updatedNotes });
+    }
+  };
+  const handleNoteTitleChange = (event: CustomEvent<InputChangeEventDetail>, myId: number) => {
+    if (newJob.notes) {
+      const updatedNotes = newJob.notes.map(note =>
+        note.id === myId ? { ...note, title: event.detail.value ?? '' } : note
       );
       setNewJob({ ...newJob, notes: updatedNotes });
     }
@@ -99,13 +110,18 @@ const handlePaintColorChange = (event: CustomEvent<InputChangeEventDetail>, myId
     return newJob.notes?.map(note => (
       <IonList key={note.id}>
         <div className='flex'>
-          <IonTextarea
-            placeholder='Enter Note Here'
-            onIonInput={(e) => handleNoteChange(e, note.id)}
-            autoGrow={true}
-          ></IonTextarea >
+          <IonInput
+            label='Title:'
+            placeholder='Enter Note Title'
+            onIonInput={(e) => handleNoteTitleChange(e, note.id)}
+          ></IonInput>
           <IonIcon onClick={() => handleRemoveNote(note.id)} slot="end" icon={closeCircleOutline} size="small"></IonIcon>
         </div>
+        <IonTextarea
+          placeholder='Enter Note Here'
+          onIonInput={(e) => handleNoteChange(e, note.id)}
+          autoGrow={true}
+        ></IonTextarea >
       </IonList>
     )) || [];
   };
@@ -140,6 +156,12 @@ const handlePaintColorChange = (event: CustomEvent<InputChangeEventDetail>, myId
     }
   };
   
+  const [isOpen, setIsOpen] = useState(false);
+  const onDateSelected = (event:any) => {
+    handleDateChanged(event)
+    setIsOpen(false); // Close the modal
+  };
+
   return (
     <>
       <MainMenu />
@@ -156,7 +178,7 @@ const handlePaintColorChange = (event: CustomEvent<InputChangeEventDetail>, myId
           <div>
             <h3>Job Information</h3>
           </div>
-          <IonList>
+          <IonList lines="none">
             <IonInput 
               value={newJob.name}
               label='Job Name:'
@@ -170,6 +192,10 @@ const handlePaintColorChange = (event: CustomEvent<InputChangeEventDetail>, myId
               placeholder='Enter Job #'
               onIonInput={handleNumberChange}
             ></IonInput>
+            <IonItem className='noPadding'>
+              <p>Date:</p>
+              <IonDatetimeButton datetime="datetime" onClick={() => setIsOpen(true)}></IonDatetimeButton>  
+            </IonItem>
           </IonList>
           {newJob.paintColors && newJob.paintColors.length > 0 && (
             <div>
@@ -189,6 +215,9 @@ const handlePaintColorChange = (event: CustomEvent<InputChangeEventDetail>, myId
               {displayPainters()}
             </div>
           )}
+          <IonModal keepContentsMounted={true} isOpen={isOpen} onDidDismiss={() => setIsOpen(false)}>
+            <IonDatetime id="datetime" presentation="date" onIonChange={onDateSelected}></IonDatetime>
+          </IonModal>
         </IonContent>
         <IonFooter className='flex'>
           <IonButton onClick={handleAddPainter}>Add Painter</IonButton>

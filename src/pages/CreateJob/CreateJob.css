@@ -18,3 +18,16 @@ ion-input.customBox {
   right: 1.5vh;
   z-index: 1000;
 }
+
+.noPadding {
+  --padding-top: 0px;
+  --padding-bottom: 0px;
+  --padding-start: 0px;
+}
+
+.frank {
+  background-color: aqua;
+  --margin-top: 0px;
+  --padding-top: 0px;
+  --padding-bottom: 0px;
+}

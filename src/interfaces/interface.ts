@@ -5,6 +5,7 @@ export interface PaintColor { id: number; name: string; pantone: string; brand: 
 export interface Job {
   name?: string;
   number?: number;
+  date?: string;
   painters?: Painter[];
   notes?: Note[];
   paintColors?: PaintColor[]
