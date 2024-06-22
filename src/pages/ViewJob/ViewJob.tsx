@@ -1,29 +1,34 @@
 import { IonButtons, IonContent, IonHeader, IonMenuButton, IonPage, IonTitle, IonToolbar } from '@ionic/react';
-import './Home.css';
+import React from 'react';
 import MainMenu from '../../components/MainMenu/MainMenu';
-import DisplayJobs from '../../components/DisplayJobs/DisplayJobs'
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store';
 
-
-const Home: React.FC = () => {
+const View: React.FC = () => {
+  const currentJob = useSelector((state: RootState) => state.currentJob.currentJob);
 
   return (
-    <> 
+    <>
       <MainMenu />
       <IonPage id="main-content">
         <IonHeader>
           <IonToolbar>
-            <IonTitle>Home</IonTitle>
+            <IonTitle>{currentJob ? (currentJob.name): ('No Job Selected')}</IonTitle>
             <IonButtons slot="start">
               <IonMenuButton></IonMenuButton>
             </IonButtons>
           </IonToolbar>
         </IonHeader>
         <IonContent className="ion-padding">
-        <DisplayJobs />
+          {currentJob ? (
+            <div>{`Job # ${currentJob.number}`}</div>
+          ) : (
+            <p>None</p>
+          )}
         </IonContent>
       </IonPage>
     </>
   );
 };
 
-export default Home;
+export default View;

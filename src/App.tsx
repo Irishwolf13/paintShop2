@@ -3,6 +3,7 @@ import { IonApp, IonRouterOutlet, setupIonicReact } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import Home from './pages/Home/Home';
 import CreateJob from './pages/CreateJob/CreateJob';
+import ViewJob from './pages/ViewJob/ViewJob';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -45,6 +46,9 @@ const App: React.FC = () => (
         </Route>
         <Route exact path="/createJob">
           <CreateJob />
+        </Route>
+        <Route exact path="/viewJob">
+          <ViewJob />
         </Route>
         <Route exact path="/">
           <Redirect to="/home" />

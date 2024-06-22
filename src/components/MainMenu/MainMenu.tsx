@@ -20,7 +20,7 @@ const MainMenu: React.FC<ContainerProps> = () => {
         {/* Call 'closeMenu' when the button is clicked */}
         <IonMenuToggle>
           <IonButton onClick={() => {history.push('/');}}>Home</IonButton>
-          <IonButton onClick={() => {history.push('/createJob');}}>Create Job</IonButton>
+          <IonButton onClick={() => {history.push('/createJob')}}>Create Job</IonButton>
         </IonMenuToggle>
       </IonContent>
     </IonMenu>

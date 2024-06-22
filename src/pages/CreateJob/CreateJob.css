@@ -26,8 +26,5 @@ ion-input.customBox {
 }
 
 .frank {
-  background-color: aqua;
-  --margin-top: 0px;
-  --padding-top: 0px;
-  --padding-bottom: 0px;
+  --padding-start: 10px; 
 }

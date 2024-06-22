@@ -108,9 +108,11 @@ const handlePaintColorChange = (event: CustomEvent<InputChangeEventDetail>, myId
 
   const displayNotes = () => {
     return newJob.notes?.map(note => (
-      <IonList key={note.id}>
+      <div className='paintContainer' key={note.id}>
+      <IonList>
         <div className='flex'>
           <IonInput
+            class='frank'
             label='Title:'
             placeholder='Enter Note Title'
             onIonInput={(e) => handleNoteTitleChange(e, note.id)}
@@ -118,11 +120,13 @@ const handlePaintColorChange = (event: CustomEvent<InputChangeEventDetail>, myId
           <IonIcon onClick={() => handleRemoveNote(note.id)} slot="end" icon={closeCircleOutline} size="small"></IonIcon>
         </div>
         <IonTextarea
+          class='frank'
           placeholder='Enter Note Here'
           onIonInput={(e) => handleNoteChange(e, note.id)}
           autoGrow={true}
         ></IonTextarea >
       </IonList>
+      </div>
     )) || [];
   };
 
@@ -197,18 +201,18 @@ const handlePaintColorChange = (event: CustomEvent<InputChangeEventDetail>, myId
               <IonDatetimeButton datetime="datetime" onClick={() => setIsOpen(true)}></IonDatetimeButton>  
             </IonItem>
           </IonList>
-          {newJob.paintColors && newJob.paintColors.length > 0 && (
-            <div>
-              <h3>Paint Colors</h3>
-              {displayPaintColors()}
-            </div>
-          )}
           {newJob.notes && newJob.notes.length > 0 &&
             <div>
               <h3>Notes</h3>
               {displayNotes()}
             </div>
           }
+          {newJob.paintColors && newJob.paintColors.length > 0 && (
+            <div>
+              <h3>Paint Colors</h3>
+              {displayPaintColors()}
+            </div>
+          )}
           {newJob.painters && newJob.painters.length > 0 && (
             <div>
               <h3>Painters</h3>
