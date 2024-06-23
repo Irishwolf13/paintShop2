@@ -133,7 +133,7 @@ const handlePaintColorChange = (event: CustomEvent<InputChangeEventDetail>, myId
       <IonList>
         <div className='flex'>
           <IonInput
-            class='frank'
+            class='paddingLeft'
             label='Title:'
             placeholder='Enter Note Title'
             onIonInput={(e) => handleNoteTitleChange(e, note.id)}
@@ -141,7 +141,7 @@ const handlePaintColorChange = (event: CustomEvent<InputChangeEventDetail>, myId
           <IonIcon onClick={() => handleRemoveNote(note.id)} slot="end" icon={closeCircleOutline} size="small"></IonIcon>
         </div>
         <IonTextarea
-          class='frank'
+          class='paddingLeft'
           placeholder='Enter Note Here'
           onIonInput={(e) => handleNoteChange(e, note.id)}
           autoGrow={true}
@@ -155,8 +155,8 @@ const handlePaintColorChange = (event: CustomEvent<InputChangeEventDetail>, myId
     // Define a mapping for colorAttribute to custom labels
     const labelMapping: { [key: string]: string } = {
       color: 'Enter Pantone Color',
-      brand: 'Sherwin, Behr, etc.',
-      line: 'Emerald, Living Well, etc.',
+      brand: 'Sherwin, Ben Moore, etc.',
+      line: 'Emerald, Regal Select, etc.',
       finish: 'Eggshell, Satin, etc.',
       type: 'Indoor, Outdoor, etc.',
       orderForm: 'www.example.com'
