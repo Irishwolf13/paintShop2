@@ -8,7 +8,7 @@ import { Job } from '../interfaces/interface'
 export const auth = getAuth(app);
 export const firestore = getFirestore(app);
 
-//////////////////////////////////////////////////////////////// FIREBASE FUNCTIONS //////////////////////////////////////////
+////////////////////////////////////////// FIREBASE FUNCTIONS //////////////////////////////////////////
 export const createJob = async (myJob: Job) => {
   try {
     const jobsCollectionRef = collection(firestore, "jobs");
@@ -80,10 +80,7 @@ export const deleteJob = async (jobId: string) => {
   }
 };
 
-
-
-
-
+////////////////////////////////////////// LIVE UPDATE FUNCTIONS //////////////////////////////////////////
 export const subscribeToJobs = (callback: (jobs: Job[]) => void, onError: (error: string) => void) => {
   try {
     const jobsCollectionRef = collection(firestore, "jobs");
@@ -104,5 +101,19 @@ export const subscribeToJobs = (callback: (jobs: Job[]) => void, onError: (error
   } catch (error) {
     console.error("Error setting up real-time listener: ", error);
     throw new Error("Could not set up real-time listener");
+  }
+};
+
+////////////////////////////////////////// IMAGE UPLOAD FUNCTION //////////////////////////////////////////
+export const uploadImage = async (userId: string, file: File): Promise<string | null> => {
+  try {
+    const storageRef = ref(imageDB, `images/${userId}/${file.name}`);
+    const snapshot = await uploadBytes(storageRef, file);
+    const downloadURL = await getDownloadURL(snapshot.ref);
+    console.log("Image successfully uploaded, URL: ", downloadURL);
+    return downloadURL;
+  } catch (error) {
+    console.error("Error uploading image: ", error);
+    throw new Error("Could not upload image");
   }
 };

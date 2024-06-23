@@ -2,13 +2,20 @@ import { InputChangeEventDetail, IonButton, IonButtons, IonContent, IonDatetime,
 import MainMenu from '../../components/MainMenu/MainMenu';
 import { useState } from 'react';
 import { closeCircleOutline } from 'ionicons/icons';
-import { createJob } from '../../firebase/controller';
+import { createJob, uploadImage } from '../../firebase/controller';
 import { Job } from '../../interfaces/interface'
 import './CreateJob.css'
 
 const CreateJob: React.FC = () => {
   const [newJob, setNewJob] = useState<Job>({});
   const myColorInfo = [ 'color', 'brand','line','finish','type', 'orderForm']
+
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+
+  const user = {uid: '12'}
+
   
   // *********************** PAINTERS ***********************
   const handleNameChanged = (event: CustomEvent<InputChangeEventDetail>) => {
@@ -39,6 +46,20 @@ const CreateJob: React.FC = () => {
   const handleRemovePainter = (myId: number) => {
     const filteredPainters = newJob.painters?.filter(painter => painter.id !== myId) || [];
     setNewJob({ ...newJob, painters: filteredPainters });
+  };
+
+  const handleAddImages = (urls: string[]) => {
+    setNewJob(prevNewJob => {
+      const currentImages = prevNewJob.images || [];
+      const nextId = currentImages.length > 0 ? currentImages[currentImages.length - 1].id + 1 : 1;
+  
+      const newImages = urls.map((url, index) => ({
+        id: nextId + index,
+        url: url
+      }));
+  
+      return { ...prevNewJob, images: [...currentImages, ...newImages] };
+    });
   };
 
   // *********************** NOTES ***********************
@@ -157,10 +178,6 @@ const handlePaintColorChange = (event: CustomEvent<InputChangeEventDetail>, myId
     )) || [];
   };
 
-  const handleAddImage = () => {
-    console.log('add an image')
-  }
-
   const handleCreateJob = async (myJob: Job) => {
     try {
       if (!myJob.date) myJob.date = new Date().toISOString(); // Checks if date is valid if not, sets to today's date
@@ -176,6 +193,36 @@ const handlePaintColorChange = (event: CustomEvent<InputChangeEventDetail>, myId
   const onDateSelected = (event:any) => {
     handleDateChanged(event)
     setIsOpen(false); // Close the modal
+  };
+
+
+  //////////////////////////// Dealing with Files ////////////////////////////
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedFile(e.target.files[0]);
+    }
+  };
+
+  const handleUpload = async () => {
+    if (!selectedFile || !user) {
+      setError("No file selected");
+      return;
+    }
+  
+    try {
+      const url = await uploadImage(user.uid, selectedFile);
+      if (url) {
+        handleAddImages([url]);
+        setUploadedImages(prevUploadedImages => [...prevUploadedImages, url]);
+        console.log("Image uploaded.");
+        setError(``);
+      } else {
+        throw new Error("Failed to upload image. URL is null.");
+      }
+    } catch (error) {
+      console.error("Error uploading image: ", error);
+      setError(`Error uploading image`);
+    }
   };
 
   return (
@@ -231,6 +278,24 @@ const handlePaintColorChange = (event: CustomEvent<InputChangeEventDetail>, myId
               {displayPainters()}
             </div>
           )}
+
+          <div>
+            <h2>Upload Image</h2>
+            <input type="file" onChange={handleFileChange} />
+            <button onClick={handleUpload}>Upload</button>
+
+            {uploadedImages.length > 0 && (
+              <div>
+                <p>Images uploaded successfully:</p>
+                {uploadedImages.map((url, index) => (
+                  <img key={index} src={url} alt={`Image ${index}`} className='displayThumb'/>
+                ))}
+              </div>
+            )}
+
+            {error && <p style={{ color: 'red' }}>{error}</p>}
+          </div>
+
           <IonModal keepContentsMounted={true} isOpen={isOpen} onDidDismiss={() => setIsOpen(false)}>
             <IonDatetime id="datetime" presentation="date" onIonChange={onDateSelected}></IonDatetime>
           </IonModal>
@@ -238,7 +303,6 @@ const handlePaintColorChange = (event: CustomEvent<InputChangeEventDetail>, myId
         <IonFooter className='flex'>
           <IonButton onClick={handleAddNote}>Add Note</IonButton>
           <IonButton onClick={handleAddPaintColor}>Add Color</IonButton>
-          <IonButton onClick={handleAddImage}>Add Image</IonButton>
           <IonButton onClick={handleAddPainter}>Add Painter</IonButton>
           <IonButton onClick={() => handleCreateJob(newJob)}>Create Job</IonButton>
         </IonFooter>
