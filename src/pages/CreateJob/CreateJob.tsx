@@ -8,7 +8,7 @@ import './CreateJob.css'
 
 const CreateJob: React.FC = () => {
   const [newJob, setNewJob] = useState<Job>({});
-  const myColorInfo = [ 'name', 'pantone','brand','type','finish']
+  const myColorInfo = [ 'color', 'brand','line','finish','type', 'orderForm']
   
   // *********************** PAINTERS ***********************
   const handleNameChanged = (event: CustomEvent<InputChangeEventDetail>) => {
@@ -75,7 +75,7 @@ const CreateJob: React.FC = () => {
     const newId = newJob.paintColors && newJob.paintColors.length > 0 
                   ? newJob.paintColors[newJob.paintColors.length - 1].id + 1
                   : 1;
-    const newPaintColor = { id: newId, name: '', pantone: '', brand: '', type: '', finish: '' };
+    const newPaintColor = { id: newId, color: '', brand: '', line: '', finish: '', type: '', orderForm: '' };
     setNewJob({ ...newJob, paintColors: [...(newJob.paintColors || []), newPaintColor] });
   };
   const handleRemovePaintColor = (myId: number) => {
@@ -131,6 +131,16 @@ const handlePaintColorChange = (event: CustomEvent<InputChangeEventDetail>, myId
   };
 
   const displayPaintColors = () => {
+    // Define a mapping for colorAttribute to custom labels
+    const labelMapping: { [key: string]: string } = {
+      color: 'Enter Pantone Color',
+      brand: 'Sherwin, Behr, etc.',
+      line: 'Emerald, Living Well, etc.',
+      finish: 'Eggshell, Satin, etc.',
+      type: 'Indoor, Outdoor, etc.',
+      orderForm: 'www.example.com'
+    };
+  
     return newJob.paintColors?.map(paintColor => (
       <div className='paintContainer' key={paintColor.id}>
         {myColorInfo.map((colorAttribute) => (
@@ -138,11 +148,11 @@ const handlePaintColorChange = (event: CustomEvent<InputChangeEventDetail>, myId
             class='customBox'
             key={colorAttribute}
             label={`${colorAttribute.charAt(0).toUpperCase() + colorAttribute.slice(1)}:`}
-            placeholder={`Enter ${colorAttribute.charAt(0).toUpperCase() + colorAttribute.slice(1)} Here`}
+            placeholder={`${labelMapping[colorAttribute] || colorAttribute}`}
             onIonInput={(e) => handlePaintColorChange(e, paintColor.id, colorAttribute)}
-            ></IonInput>
-            ))}
-          <IonIcon className='removeMe' onClick={() => handleRemovePaintColor(paintColor.id)} slot="end" icon={closeCircleOutline} size="small"></IonIcon>
+          ></IonInput>
+        ))}
+        <IonIcon className='removeMe' onClick={() => handleRemovePaintColor(paintColor.id)} slot="end" icon={closeCircleOutline} size="small"></IonIcon>
       </div>
     )) || [];
   };
@@ -153,7 +163,9 @@ const handlePaintColorChange = (event: CustomEvent<InputChangeEventDetail>, myId
 
   const handleCreateJob = async (myJob: Job) => {
     try {
-      await createJob( myJob );
+      if (!myJob.date) myJob.date = new Date().toISOString(); // Checks if date is valid if not, sets to today's date
+
+      await createJob(myJob);
       console.log('Job updated successfully.');
     } catch (error) {
       console.error('Error updating job:', error);
@@ -224,10 +236,10 @@ const handlePaintColorChange = (event: CustomEvent<InputChangeEventDetail>, myId
           </IonModal>
         </IonContent>
         <IonFooter className='flex'>
-          <IonButton onClick={handleAddPainter}>Add Painter</IonButton>
           <IonButton onClick={handleAddNote}>Add Note</IonButton>
           <IonButton onClick={handleAddPaintColor}>Add Color</IonButton>
           <IonButton onClick={handleAddImage}>Add Image</IonButton>
+          <IonButton onClick={handleAddPainter}>Add Painter</IonButton>
           <IonButton onClick={() => handleCreateJob(newJob)}>Create Job</IonButton>
         </IonFooter>
       </IonPage>

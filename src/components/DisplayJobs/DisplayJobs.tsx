@@ -42,7 +42,7 @@ const DisplayJobs: React.FC = () => {
 
       // Check paint colors
       const paintColorsMatched = job.paintColors?.some(paintColor => 
-        paintColor.name.toLowerCase().includes(searchTerm.toLowerCase())
+        paintColor.color.toLowerCase().includes(searchTerm.toLowerCase())
       );
 
       return nameMatched || numberMatched || paintColorsMatched;
@@ -60,7 +60,7 @@ const DisplayJobs: React.FC = () => {
   }
 
   const renderJobCard = (job: Job) => (
-    <IonItem key={job.number} onClick={(e) => handleClicked(job)}>
+    <IonItem key={job.id} onClick={(e) => handleClicked(job)}>
       <IonLabel>
         <h3>{`${job.name}`}</h3>
         <p>{`Job # ${job.number}`}</p>
