@@ -12,15 +12,13 @@ const CreateJob: React.FC = () => {
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
-  // const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const [toastVisible, setToastVisible] = useState<boolean>(false);
   const [uploadVisible, setUploadVisible] = useState<boolean>(false);
-
 
   const user = {uid: '12'}
 
   
-  // *********************** PAINTERS ***********************
+  //////////////////////////// HANDLE PAINTERS //////////////////////////// 
   const handleNameChanged = (event: CustomEvent<InputChangeEventDetail>) => {
     setNewJob({ ...newJob, name: event.detail.value ?? '' });
   };
@@ -54,18 +52,21 @@ const CreateJob: React.FC = () => {
   const handleAddImages = (urls: string[]) => {
     setNewJob(prevNewJob => {
       const currentImages = prevNewJob.images || [];
-      const nextId = currentImages.length > 0 ? currentImages[currentImages.length - 1].id + 1 : 1;
-  
-      const newImages = urls.map((url, index) => ({
-        id: nextId + index,
-        url: url
+      const newImages = urls.map((url) => ({
+        url
       }));
-  
       return { ...prevNewJob, images: [...currentImages, ...newImages] };
     });
   };
 
-  // *********************** NOTES ***********************
+  const handleRemoveImage = (index: number) => {
+    console.log('iran')
+    console.log(index)
+    const filteredImages = newJob.images?.filter((_, imgIndex) => imgIndex !== index) || [];
+    setNewJob({ ...newJob, images: filteredImages });
+  };
+
+  //////////////////////////// HANDLE NOTES //////////////////////////// 
   const handleAddNote = () => {
     const newId = newJob.notes && newJob.notes.length > 0 
                   ? newJob.notes[newJob.notes.length - 1].id + 1
@@ -94,7 +95,7 @@ const CreateJob: React.FC = () => {
     }
   };
 
-  // *********************** PAINT COLORS ***********************
+  //////////////////////////// HANDLE PAINT COLORS //////////////////////////// 
   const handleAddPaintColor = () => {
     const newId = newJob.paintColors && newJob.paintColors.length > 0 
                   ? newJob.paintColors[newJob.paintColors.length - 1].id + 1
@@ -106,16 +107,16 @@ const CreateJob: React.FC = () => {
     const filteredPaintColors = newJob.paintColors?.filter(paintColor => paintColor.id !== myId) || [];
     setNewJob({ ...newJob, paintColors: filteredPaintColors });
   };
-const handlePaintColorChange = (event: CustomEvent<InputChangeEventDetail>, myId: number, myValue: string) => {
-  if (newJob.paintColors) {
-    const updatedPaintColors = newJob.paintColors.map(paintColor =>
-      paintColor.id === myId ? { ...paintColor, [myValue]: event.detail.value ?? '' } : paintColor
-    );
-    setNewJob({ ...newJob, paintColors: updatedPaintColors });
-  }
-};
+  const handlePaintColorChange = (event: CustomEvent<InputChangeEventDetail>, myId: number, myValue: string) => {
+    if (newJob.paintColors) {
+      const updatedPaintColors = newJob.paintColors.map(paintColor =>
+        paintColor.id === myId ? { ...paintColor, [myValue]: event.detail.value ?? '' } : paintColor
+      );
+      setNewJob({ ...newJob, paintColors: updatedPaintColors });
+    }
+  };
 
-  // *********************** DISPLAYS ***********************
+  //////////////////////////// DISPLAYS //////////////////////////// 
   const displayPainters = () => {
     return newJob.painters?.map(painter => (
       <IonList key={painter.id}>
@@ -181,6 +182,7 @@ const handlePaintColorChange = (event: CustomEvent<InputChangeEventDetail>, myId
     )) || [];
   };
 
+  //////////////////////////// Creating Stuff //////////////////////////// 
   const handleCreateJob = async (myJob: Job) => {
     try {
       if (!myJob.date) myJob.date = new Date().toISOString(); // Checks if date is valid if not, sets to today's date
@@ -190,16 +192,19 @@ const handlePaintColorChange = (event: CustomEvent<InputChangeEventDetail>, myId
     } catch (error) {
       console.error('Error updating job:', error);
     }
+    setNewJob({});
+    resetImageInput();
   };
-  
+
+  //////////////////////////// MODALS //////////////////////////// 
   const [isOpen, setIsOpen] = useState(false);
   const onDateSelected = (event:any) => {
     handleDateChanged(event)
-    setIsOpen(false); // Close the modal
+    setIsOpen(false);
   };
 
 
-  //////////////////////////// Dealing with Files ////////////////////////////
+  //////////////////////////// Dealing with Image Files ////////////////////////////
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
@@ -226,9 +231,9 @@ const handlePaintColorChange = (event: CustomEvent<InputChangeEventDetail>, myId
       const url = await uploadImage(user.uid, selectedFile);
       if (url) {
         handleAddImages([url]);
-        // setUploadedImages(prevUploadedImages => [...prevUploadedImages, url]);
         setUploadVisible(false);
         setToastVisible(true);
+        resetImageInput();
         setError(``);
       } else {
         throw new Error("Failed to upload image. URL is null.");
@@ -238,6 +243,21 @@ const handlePaintColorChange = (event: CustomEvent<InputChangeEventDetail>, myId
       setError(`Error uploading image`);
     }
   };
+
+  const renderImages = (images:any) => {
+    return images.map((image:any, index:number) => (
+      <div key={index} className='imageContainer'>
+        <img className='displayThumb' src={image.url} alt={`uploaded-${index}`} />
+        <button className='removeButton' onClick={() => handleRemoveImage(index)}>x</button>
+      </div>
+    ));
+  }
+  const resetImageInput = () => {
+    // Clears out the file input so it's blank again
+    const fileInput = document.getElementById('fileInput') as HTMLInputElement;
+    if (fileInput) fileInput.value = '';
+    setSelectedFile(null);
+  }
 
   return (
     <>
@@ -292,22 +312,20 @@ const handlePaintColorChange = (event: CustomEvent<InputChangeEventDetail>, myId
               {displayPainters()}
             </div>
           )}
-
           <div>
             <h2>Upload Image or PDF</h2>
             {newJob?.images && (
-              <div className='imageContainer'>
-                {newJob.images.map((image, index) => (
-                  <img key={index} className='displayThumb' src={image.url} alt={`uploaded-${index}`} />
-                ))}
+              <div className='mainImageContainer'>
+                {renderImages(newJob.images)}
               </div>
             )}
             <input
+              id="fileInput"
               type="file"
               onChange={handleFileChange}
               accept="image/jpeg, image/png, image/gif, image/pdf, image/jpg"  
             />
-            <button onClick={handleUpload}>Upload</button>
+            <IonButton onClick={handleUpload}>Upload</IonButton>
             {error && <p style={{ color: 'red' }}>{error}</p>}
           </div>
 
@@ -315,18 +333,18 @@ const handlePaintColorChange = (event: CustomEvent<InputChangeEventDetail>, myId
             <IonDatetime id="datetime" presentation="date" onIonChange={onDateSelected}></IonDatetime>
           </IonModal>
           <IonToast
-            className='toasty'
+            className='toastyTrying'
+            isOpen={uploadVisible}
+            onDidDismiss={() => setUploadVisible(false)}
+            message={`Uploading Image...`}
+          />
+          <IonToast
+            className='toastySuccess'
             isOpen={toastVisible}
             onDidDismiss={() => setToastVisible(false)}
             onClick={() => setToastVisible(false)}
-            message={`${selectedFile?.name} uploaded successfully`}
-            duration={5000}
-          />
-          <IonToast
-            className='toasty'
-            isOpen={uploadVisible}
-            onDidDismiss={() => setUploadVisible(false)}
-            message={`Uploading ${selectedFile?.name}...`}
+            message={`Image uploaded successfully!`}
+            duration={3000}
           />
         </IonContent>
         <IonFooter className='flex'>
