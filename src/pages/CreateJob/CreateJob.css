@@ -1,6 +1,11 @@
 .noteContainer {
   background-color: aliceblue;
 }
+.imageContainer {
+  display: flex;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
 
 ion-input.customBox {
   --padding-start: 10px;
@@ -27,9 +32,16 @@ ion-input.customBox {
 
 .displayThumb {
   max-width: 100px;
-  max-height: 100px
+  max-height: 100px;
+  margin: auto;
+  padding: 2px;
 }
 
 .paddingLeft {
   --padding-start: 10px;
+}
+.toasty {
+  --border-color: rgb(255, 0, 0);
+  --border-style: solid;
+  --border-width: 2px;
 }

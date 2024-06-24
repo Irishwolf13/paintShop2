@@ -1,4 +1,4 @@
-import { InputChangeEventDetail, IonButton, IonButtons, IonContent, IonDatetime, IonDatetimeButton, IonFooter, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonList, IonMenuButton, IonModal, IonPage, IonTextarea, IonTitle, IonToolbar } from '@ionic/react';
+import { InputChangeEventDetail, IonButton, IonButtons, IonContent, IonDatetime, IonDatetimeButton, IonFooter, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonList, IonMenuButton, IonModal, IonPage, IonTextarea, IonTitle, IonToast, IonToolbar } from '@ionic/react';
 import MainMenu from '../../components/MainMenu/MainMenu';
 import { useState } from 'react';
 import { closeCircleOutline } from 'ionicons/icons';
@@ -12,7 +12,10 @@ const CreateJob: React.FC = () => {
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+  // const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+  const [toastVisible, setToastVisible] = useState<boolean>(false);
+  const [uploadVisible, setUploadVisible] = useState<boolean>(false);
+
 
   const user = {uid: '12'}
 
@@ -199,22 +202,33 @@ const handlePaintColorChange = (event: CustomEvent<InputChangeEventDetail>, myId
   //////////////////////////// Dealing with Files ////////////////////////////
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setSelectedFile(e.target.files[0]);
+      const file = e.target.files[0];
+      const validTypes = ['image/jpeg', 'image/png', 'image/gif, application/pdf'];
+
+      if (!validTypes.includes(file.type)) {
+        setError("Invalid file type. Only JPG, PNG, GIF and PDF are allowed.");
+        setSelectedFile(null);
+        return;
+      }
+      setSelectedFile(file);
+      setError("");
     }
   };
 
   const handleUpload = async () => {
     if (!selectedFile || !user) {
-      setError("No file selected");
+      setError("Only JPG, PNG, GIF and PDF are allowed");
       return;
     }
-  
+
     try {
+      setUploadVisible(true)
       const url = await uploadImage(user.uid, selectedFile);
       if (url) {
         handleAddImages([url]);
-        setUploadedImages(prevUploadedImages => [...prevUploadedImages, url]);
-        console.log("Image uploaded.");
+        // setUploadedImages(prevUploadedImages => [...prevUploadedImages, url]);
+        setUploadVisible(false);
+        setToastVisible(true);
         setError(``);
       } else {
         throw new Error("Failed to upload image. URL is null.");
@@ -280,25 +294,40 @@ const handlePaintColorChange = (event: CustomEvent<InputChangeEventDetail>, myId
           )}
 
           <div>
-            <h2>Upload Image</h2>
-            <input type="file" onChange={handleFileChange} />
-            <button onClick={handleUpload}>Upload</button>
-
-            {uploadedImages.length > 0 && (
-              <div>
-                <p>Images uploaded successfully:</p>
-                {uploadedImages.map((url, index) => (
-                  <img key={index} src={url} alt={`Image ${index}`} className='displayThumb'/>
+            <h2>Upload Image or PDF</h2>
+            {newJob?.images && (
+              <div className='imageContainer'>
+                {newJob.images.map((image, index) => (
+                  <img key={index} className='displayThumb' src={image.url} alt={`uploaded-${index}`} />
                 ))}
               </div>
             )}
-
+            <input
+              type="file"
+              onChange={handleFileChange}
+              accept="image/jpeg, image/png, image/gif, image/pdf, image/jpg"  
+            />
+            <button onClick={handleUpload}>Upload</button>
             {error && <p style={{ color: 'red' }}>{error}</p>}
           </div>
 
           <IonModal keepContentsMounted={true} isOpen={isOpen} onDidDismiss={() => setIsOpen(false)}>
             <IonDatetime id="datetime" presentation="date" onIonChange={onDateSelected}></IonDatetime>
           </IonModal>
+          <IonToast
+            className='toasty'
+            isOpen={toastVisible}
+            onDidDismiss={() => setToastVisible(false)}
+            onClick={() => setToastVisible(false)}
+            message={`${selectedFile?.name} uploaded successfully`}
+            duration={5000}
+          />
+          <IonToast
+            className='toasty'
+            isOpen={uploadVisible}
+            onDidDismiss={() => setUploadVisible(false)}
+            message={`Uploading ${selectedFile?.name}...`}
+          />
         </IonContent>
         <IonFooter className='flex'>
           <IonButton onClick={handleAddNote}>Add Note</IonButton>
