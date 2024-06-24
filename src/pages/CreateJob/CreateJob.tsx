@@ -351,7 +351,7 @@ const CreateJob: React.FC = () => {
           <IonButton onClick={handleAddNote}>Add Note</IonButton>
           <IonButton onClick={handleAddPaintColor}>Add Color</IonButton>
           <IonButton onClick={handleAddPainter}>Add Painter</IonButton>
-          <IonButton onClick={() => handleCreateJob(newJob)}>Create Job</IonButton>
+          <IonButton className='buttonGreen' onClick={() => handleCreateJob(newJob)}>Create Job</IonButton>
         </IonFooter>
       </IonPage>
     </>
