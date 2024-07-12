@@ -5,20 +5,23 @@ import { closeCircleOutline } from 'ionicons/icons';
 import { createJob, uploadImage } from '../../firebase/controller';
 import { Job } from '../../interfaces/interface'
 import './CreateJob.css'
+import { useHistory } from 'react-router-dom';
 
 const CreateJob: React.FC = () => {
-  const [newJob, setNewJob] = useState<Job>({});
+  const [newJob, setNewJob] = useState<Job>({
+    notes: [{ id: 1, note: '', title: '' }],
+    paintColors: [{ id: 1, color: '', brand: '', line: '', finish: '', type: '', orderForm: ''}]
+  });
   const myColorInfo = [ 'color', 'brand','line','finish','type', 'orderForm']
 
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [toastVisible, setToastVisible] = useState<boolean>(false);
   const [uploadVisible, setUploadVisible] = useState<boolean>(false);
 
   const user = {uid: '12'}
+  const history = useHistory();
 
-  
-  //////////////////////////// HANDLE PAINTERS //////////////////////////// 
   const handleNameChanged = (event: CustomEvent<InputChangeEventDetail>) => {
     setNewJob({ ...newJob, name: event.detail.value ?? '' });
   };
@@ -28,25 +31,6 @@ const CreateJob: React.FC = () => {
   };
   const handleDateChanged = (event: CustomEvent<InputChangeEventDetail>) => {
     setNewJob({ ...newJob, date: event.detail.value ?? '' });
-  };
-  const handlePainterNameChange = (event: CustomEvent<InputChangeEventDetail>, myId: number) => {
-    if (newJob.painters) {
-      const updatedPainters = newJob.painters.map(painter =>
-        painter.id === myId ? { ...painter, name: event.detail.value ?? '' } : painter
-      );
-      setNewJob({ ...newJob, painters: updatedPainters });
-    }
-  };
-  const handleAddPainter = () => {
-    const newId = newJob.painters && newJob.painters.length > 0 
-                 ? newJob.painters[newJob.painters.length - 1].id + 1
-                 : 1;
-    const newPainter = { id: newId, name: '' };
-    setNewJob({ ...newJob, painters: [...(newJob.painters || []), newPainter] });
-  };
-  const handleRemovePainter = (myId: number) => {
-    const filteredPainters = newJob.painters?.filter(painter => painter.id !== myId) || [];
-    setNewJob({ ...newJob, painters: filteredPainters });
   };
 
   const handleAddImages = (urls: string[]) => {
@@ -115,22 +99,8 @@ const CreateJob: React.FC = () => {
       setNewJob({ ...newJob, paintColors: updatedPaintColors });
     }
   };
-
+      
   //////////////////////////// DISPLAYS //////////////////////////// 
-  const displayPainters = () => {
-    return newJob.painters?.map(painter => (
-      <IonList key={painter.id}>
-        <div className='flex'>
-          <IonInput
-            placeholder='Enter Painter Name'
-            onIonInput={(e) => handlePainterNameChange(e, painter.id)}
-          ></IonInput>
-          <IonIcon onClick={() => handleRemovePainter(painter.id)} slot="end" icon={closeCircleOutline} size="small"></IonIcon>
-        </div>
-      </IonList>
-    )) || [];
-  };
-
   const displayNotes = () => {
     return newJob.notes?.map(note => (
       <div className='paintContainer' key={note.id}>
@@ -142,7 +112,7 @@ const CreateJob: React.FC = () => {
             placeholder='Enter Note Title'
             onIonInput={(e) => handleNoteTitleChange(e, note.id)}
           ></IonInput>
-          <IonIcon onClick={() => handleRemoveNote(note.id)} slot="end" icon={closeCircleOutline} size="small"></IonIcon>
+          <IonIcon className='removeMe' onClick={() => handleRemoveNote(note.id)} slot="end" icon={closeCircleOutline} size="small"></IonIcon>
         </div>
         <IonTextarea
           class='paddingLeft'
@@ -194,70 +164,78 @@ const CreateJob: React.FC = () => {
     }
     setNewJob({});
     resetImageInput();
+    setIsConfirmOpen(true);
   };
 
   //////////////////////////// MODALS //////////////////////////// 
-  const [isOpen, setIsOpen] = useState(false);
+  const [isDateSelectOpen, setIsDateSelectOpen] = useState(false);
   const onDateSelected = (event:any) => {
-    handleDateChanged(event)
-    setIsOpen(false);
+    handleDateChanged(event);
+    setIsDateSelectOpen(false);
   };
 
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
   //////////////////////////// Dealing with Image Files ////////////////////////////
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      const validTypes = ['image/jpeg', 'image/png', 'image/gif, application/pdf'];
-
-      if (!validTypes.includes(file.type)) {
-        setError("Invalid file type. Only JPG, PNG, GIF and PDF are allowed.");
-        setSelectedFile(null);
+    if (e.target.files) {
+      const files = Array.from(e.target.files);
+      const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf'];
+      const validFiles = files.filter(file => validTypes.includes(file.type));
+      const invalidFiles = files.filter(file => !validTypes.includes(file.type));
+  
+      if (invalidFiles.length > 0) {
+        setError("Some files have invalid types. Only JPG, PNG, GIF, and PDF are allowed.");
         return;
+      } else {
+        setError("");
       }
-      setSelectedFile(file);
-      setError("");
+      setSelectedFiles(validFiles);
     }
   };
 
   const handleUpload = async () => {
-    if (!selectedFile || !user) {
-      setError("Only JPG, PNG, GIF and PDF are allowed");
+    if (!selectedFiles || !user) {
+      setError("Select files to upload and ensure you are logged in.");
       return;
     }
-
+  
     try {
-      setUploadVisible(true)
-      const url = await uploadImage(user.uid, selectedFile);
-      if (url) {
-        handleAddImages([url]);
-        setUploadVisible(false);
-        setToastVisible(true);
-        resetImageInput();
-        setError(``);
-      } else {
-        throw new Error("Failed to upload image. URL is null.");
+      setUploadVisible(true);
+  
+      for (let file of selectedFiles) {
+        const url = await uploadImage(user.uid, file);
+        if (url) {
+          handleAddImages([url]);
+        } else {
+          throw new Error(`Failed to upload image ${file.name}. URL is null.`);
+        }
       }
+  
+      setUploadVisible(false);
+      setToastVisible(true);
+      resetImageInput();
+      setError('');
     } catch (error) {
-      console.error("Error uploading image: ", error);
-      setError(`Error uploading image`);
+      console.error("Error uploading images: ", error);
+      setError(`Error uploading images`);
     }
   };
 
-  const renderImages = (images:any) => {
-    return images.map((image:any, index:number) => (
+  const renderImages = (images: any) => {
+    return images.map((image: any, index: number) => (
       <div key={index} className='imageContainer'>
         <img className='displayThumb' src={image.url} alt={`uploaded-${index}`} />
         <button className='removeButton' onClick={() => handleRemoveImage(index)}>x</button>
       </div>
     ));
-  }
+  };
   const resetImageInput = () => {
     // Clears out the file input so it's blank again
     const fileInput = document.getElementById('fileInput') as HTMLInputElement;
     if (fileInput) fileInput.value = '';
-    setSelectedFile(null);
-  }
+    setSelectedFiles([]);
+  };
 
   return (
     <>
@@ -265,7 +243,7 @@ const CreateJob: React.FC = () => {
       <IonPage id="main-content">
         <IonHeader>
           <IonToolbar>
-            <IonTitle>CreateJob</IonTitle>
+            <IonTitle>Job Information</IonTitle>
             <IonButtons slot="start">
               <IonMenuButton></IonMenuButton>
             </IonButtons>
@@ -273,7 +251,7 @@ const CreateJob: React.FC = () => {
         </IonHeader>
         <IonContent className="ion-padding">
           <div>
-            <h3>Job Information</h3>
+            {/* <h3>Job Information</h3> */}
           </div>
           <IonList lines="none">
             <IonInput 
@@ -291,7 +269,7 @@ const CreateJob: React.FC = () => {
             ></IonInput>
             <IonItem className='noPadding'>
               <p>Date:</p>
-              <IonDatetimeButton datetime="datetime" onClick={() => setIsOpen(true)}></IonDatetimeButton>  
+              <IonDatetimeButton datetime="datetime" onClick={() => setIsDateSelectOpen(true)}></IonDatetimeButton>  
             </IonItem>
           </IonList>
           {newJob.notes && newJob.notes.length > 0 &&
@@ -306,12 +284,6 @@ const CreateJob: React.FC = () => {
               {displayPaintColors()}
             </div>
           )}
-          {newJob.painters && newJob.painters.length > 0 && (
-            <div>
-              <h3>Painters</h3>
-              {displayPainters()}
-            </div>
-          )}
           <div>
             <h2>Upload Image or PDF</h2>
             {newJob?.images && (
@@ -322,16 +294,29 @@ const CreateJob: React.FC = () => {
             <input
               id="fileInput"
               type="file"
+              multiple
               onChange={handleFileChange}
               accept="image/jpeg, image/png, image/gif, image/pdf, image/jpg"  
             />
-            <IonButton onClick={handleUpload}>Upload</IonButton>
+            <div><IonButton onClick={handleUpload}>Upload Images</IonButton></div>
             {error && <p style={{ color: 'red' }}>{error}</p>}
           </div>
 
-          <IonModal keepContentsMounted={true} isOpen={isOpen} onDidDismiss={() => setIsOpen(false)}>
+          <IonModal keepContentsMounted={true} isOpen={isDateSelectOpen} onDidDismiss={() => setIsDateSelectOpen(false)}>
             <IonDatetime id="datetime" presentation="date" onIonChange={onDateSelected}></IonDatetime>
           </IonModal>
+
+          <IonModal keepContentsMounted={true} isOpen={isConfirmOpen} onDidDismiss={() => setIsConfirmOpen(false)}>
+            <IonHeader>
+              <IonToolbar>
+                <IonTitle>Your Job has been created!</IonTitle>
+              </IonToolbar>
+            </IonHeader>
+            <IonContent>
+              <IonButton onClick={() => {setIsConfirmOpen(false); history.push('/');}}>Ok</IonButton>
+            </IonContent>
+          </IonModal>
+
           <IonToast
             className='toastyTrying'
             isOpen={uploadVisible}
@@ -350,8 +335,8 @@ const CreateJob: React.FC = () => {
         <IonFooter className='flex'>
           <IonButton onClick={handleAddNote}>Add Note</IonButton>
           <IonButton onClick={handleAddPaintColor}>Add Color</IonButton>
-          <IonButton onClick={handleAddPainter}>Add Painter</IonButton>
-          <IonButton className='buttonGreen' onClick={() => handleCreateJob(newJob)}>Create Job</IonButton>
+          {/* <IonButton onClick={handleAddPainter}>Add Painter</IonButton> */}
+          <IonButton className='buttonGreen' onClick={() => handleCreateJob(newJob)}>Save Job</IonButton>
         </IonFooter>
       </IonPage>
     </>

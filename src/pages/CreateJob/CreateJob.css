@@ -33,10 +33,15 @@ ion-input.customBox {
 }
 
 .removeMe {
+  cursor: pointer;
   position: absolute;
   top: 1.5vh;
   right: 1.5vh;
   z-index: 1000;
+  border-radius: 50%; 
+}
+.removeMe:hover {
+  background-color: #ff5353;
 }
 
 .noPadding {
