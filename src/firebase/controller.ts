@@ -14,7 +14,7 @@ export const createJob = async (myJob: Job) => {
     const jobsCollectionRef = collection(firestore, "jobs");
     const docRef = await addDoc(jobsCollectionRef, myJob);
     console.log("Document successfully created");
-    // return docRef.id; // return the id of the newly created document
+    // return docRef.id;
   } catch (error) {
     console.error("Error adding document: ", error);
     throw new Error("Could not create job");
