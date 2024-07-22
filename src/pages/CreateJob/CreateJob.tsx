@@ -6,6 +6,7 @@ import { createJob, uploadImage } from '../../firebase/controller';
 import { Job } from '../../interfaces/interface'
 import './CreateJob.css'
 import { useHistory } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 const CreateJob: React.FC = () => {
   const [newJob, setNewJob] = useState<Job>({
@@ -19,7 +20,7 @@ const CreateJob: React.FC = () => {
   const [toastVisible, setToastVisible] = useState<boolean>(false);
   const [uploadVisible, setUploadVisible] = useState<boolean>(false);
 
-  const user = {uid: '12'}
+  const { currentUser } = useAuth();
   const history = useHistory();
 
   const handleNameChanged = (event: CustomEvent<InputChangeEventDetail>) => {
@@ -36,16 +37,12 @@ const CreateJob: React.FC = () => {
   const handleAddImages = (urls: string[]) => {
     setNewJob(prevNewJob => {
       const currentImages = prevNewJob.images || [];
-      const newImages = urls.map((url) => ({
-        url
-      }));
+      const newImages = urls.map(url => ({ url }));
       return { ...prevNewJob, images: [...currentImages, ...newImages] };
     });
   };
 
   const handleRemoveImage = (index: number) => {
-    console.log('iran')
-    console.log(index)
     const filteredImages = newJob.images?.filter((_, imgIndex) => imgIndex !== index) || [];
     setNewJob({ ...newJob, images: filteredImages });
   };
@@ -195,7 +192,7 @@ const CreateJob: React.FC = () => {
   };
 
   const handleUpload = async () => {
-    if (!selectedFiles || !user) {
+    if (!selectedFiles || !currentUser) {
       setError("Select files to upload and ensure you are logged in.");
       return;
     }
@@ -204,7 +201,7 @@ const CreateJob: React.FC = () => {
       setUploadVisible(true);
   
       for (let file of selectedFiles) {
-        const url = await uploadImage(user.uid, file);
+        const url = await uploadImage(currentUser.uid, file);
         if (url) {
           handleAddImages([url]);
         } else {
