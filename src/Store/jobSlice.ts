@@ -1,6 +1,6 @@
 // src/jobSlice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Job } from './interfaces/interface';
+import { Job } from '../interfaces/interface';
 
 interface JobState {
   currentJob: Job | null;

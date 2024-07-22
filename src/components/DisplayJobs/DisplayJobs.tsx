@@ -3,8 +3,8 @@ import { IonList, IonItem, IonLabel, IonSearchbar } from "@ionic/react";
 import { subscribeToJobs } from "../../firebase/controller";
 import { Job } from "../../interfaces/interface";
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState } from '../../store';
-import { setCurrentJob, clearCurrentJob } from '../../jobSlice';
+import { RootState } from '../../Store/store';
+import { setCurrentJob, clearCurrentJob } from '../../Store/jobSlice';
 import { useHistory } from 'react-router-dom';
 
 const DisplayJobs: React.FC = () => {

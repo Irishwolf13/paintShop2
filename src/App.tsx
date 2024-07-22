@@ -4,7 +4,7 @@ import { IonReactRouter } from '@ionic/react-router';
 import Home from './pages/Home/Home';
 import Login from './pages/Login/Login';
 import CreateJob from './pages/CreateJob/CreateJob';
-import ViewJob from './pages/ViewJob/ViewJob';
+import ViewJob from './pages/EditJob/EditJob';
 import PublicRoute from './context/PublicRoute';
 import PrivateRoute from './context/PrivateRoute';
 import { AuthProvider } from './context/AuthContext';

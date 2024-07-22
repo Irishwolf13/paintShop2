@@ -78,3 +78,6 @@ ion-input.customBox {
 .buttonGreen {
   --background: green;
 }
+.buttonRed {
+  --background: rgb(255, 0, 0);
+}
