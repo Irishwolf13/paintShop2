@@ -2,8 +2,12 @@ import { Redirect, Route } from 'react-router-dom';
 import { IonApp, IonRouterOutlet, setupIonicReact } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import Home from './pages/Home/Home';
+import Login from './pages/Login/Login';
 import CreateJob from './pages/CreateJob/CreateJob';
 import ViewJob from './pages/ViewJob/ViewJob';
+import PublicRoute from './context/PublicRoute';
+import PrivateRoute from './context/PrivateRoute';
+import { AuthProvider } from './context/AuthContext';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -39,22 +43,19 @@ setupIonicReact();
 
 const App: React.FC = () => (
   <IonApp>
-    <IonReactRouter>
-      <IonRouterOutlet>
-        <Route exact path="/home">
-          <Home />
-        </Route>
-        <Route exact path="/createJob">
-          <CreateJob />
-        </Route>
-        <Route exact path="/viewJob">
-          <ViewJob />
-        </Route>
-        <Route exact path="/">
-          <Redirect to="/home" />
-        </Route>
-      </IonRouterOutlet>
-    </IonReactRouter>
+    <AuthProvider>
+      <IonReactRouter>
+        <IonRouterOutlet>
+          <PublicRoute exact path="/Login" component={Login} />
+          <PrivateRoute exact path="/home" component={Home} />
+          <PrivateRoute exact path="/createJob" component={CreateJob} />
+          <PrivateRoute exact path="/viewJob" component={ViewJob} />
+          <Route exact path="/">
+            <Redirect to="/home" />
+          </Route>
+        </IonRouterOutlet>
+      </IonReactRouter>
+    </AuthProvider>
   </IonApp>
 );
 
