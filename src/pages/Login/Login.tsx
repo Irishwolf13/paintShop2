@@ -45,28 +45,32 @@ const Login: React.FC = () => {
             </IonToolbar>
           </IonHeader>
           <IonContent className="ion-padding">
-            <IonItem>
-              <IonLabel position="floating">Email</IonLabel>
-              <IonInput
-                type="email"
-                value={email}
-                onIonInput={(e) => setEmail(e.detail.value!)}
-              ></IonInput>
-            </IonItem>
-            <IonItem>
-              <IonLabel position="floating">Password</IonLabel>
-              <IonInput
-                type="password"
-                value={password}
-                onIonInput={(e) => setPassword(e.detail.value!)}
-                onKeyDown={handleKeyDown}
-              ></IonInput>
-            </IonItem>
-            {error && <p style={{ color: 'red' }}>{error}</p>}
+            <IonInput
+              type="email"
+              value={email}
+              label="Email" 
+              labelPlacement="floating" 
+              fill="outline" 
+              placeholder="Enter email address"
+              onIonInput={(e) => setEmail(e.detail.value!)}
+            ></IonInput>
+            <br />
+            <IonInput
+              type="password"
+              value={password}
+              label="Password" 
+              labelPlacement="floating" 
+              fill="outline" 
+              placeholder="Enter Passord"
+              onIonInput={(e) => setPassword(e.detail.value!)}
+              onKeyDown={handleKeyDown}
+            ></IonInput>
+            <br />
             <IonButton expand="block" onClick={handleLogin}>
               Login
             </IonButton>
             <IonLoading isOpen={loading} message={'Logging in...'} />
+            {error && <p style={{ color: 'red' }}>{error}</p>}
           </IonContent>
         </IonPage>
       </>
