@@ -1,34 +1,25 @@
-// src/components/MainMenu.tsx
-import {
-  IonButton,
-  IonButtons,
-  IonContent,
-  IonHeader,
-  IonMenu,
-  IonMenuButton,
-  IonMenuToggle,
-  IonTitle,
-  IonToolbar
-} from "@ionic/react";
+import { IonButton, IonButtons, IonContent, IonHeader, IonMenu, IonMenuButton, IonMenuToggle, IonTitle, IonToolbar } from "@ionic/react";
 import { useHistory } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useRef } from 'react';
 
-// Since ContainerProps is empty, it can be omitted
 const MainMenu: React.FC = () => {
-  const history = useHistory();
   const { currentUser, logout } = useAuth();
+  const history = useHistory();
+  const menuRef = useRef<HTMLIonMenuElement | null>(null); 
 
   const handleLogout = async () => {
     try {
+      if (menuRef.current) { await menuRef.current.close(); }
       await logout();
-      history.push('/login'); // Redirect to login after successful logout
+      history.push('/login');
     } catch (error) {
       console.error('Failed to log out:', error);
     }
   };
 
   return (
-    <IonMenu side="start" contentId="main-content" swipeGesture={false}>
+    <IonMenu ref={menuRef} side="start" contentId="main-content" swipeGesture={false}>
       <IonHeader>
         <IonToolbar>
           <IonTitle>Main Menu</IonTitle>
@@ -43,10 +34,9 @@ const MainMenu: React.FC = () => {
             <>
               <IonButton onClick={() => history.push('/')}>Home</IonButton>
               <IonButton onClick={() => history.push('/createJob')}>Create Job</IonButton>
-              <IonButton color="danger" onClick={handleLogout}>Logout</IonButton> 
+              <IonButton color="danger" onClick={handleLogout}>Logout</IonButton>
             </>
           ) : (
-            // Ensure no inline comment breaks the code
             <IonButton onClick={() => history.push('/login')}>Login</IonButton>
           )}
         </IonMenuToggle>
