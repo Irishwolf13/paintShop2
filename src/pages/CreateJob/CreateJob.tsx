@@ -1,6 +1,6 @@
 import { InputChangeEventDetail, IonBackButton, IonButton, IonButtons, IonContent, IonDatetime, IonDatetimeButton, IonFooter, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonList, IonMenuButton, IonModal, IonPage, IonTextarea, IonTitle, IonToast, IonToolbar } from '@ionic/react';
 import MainMenu from '../../components/MainMenu/MainMenu';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { closeCircleOutline } from 'ionicons/icons';
 import { createJob, uploadImage } from '../../firebase/controller';
 import { Job } from '../../interfaces/interface'
@@ -174,6 +174,10 @@ const CreateJob: React.FC = () => {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
   //////////////////////////// Dealing with Image Files ////////////////////////////
+  useEffect(() => {
+    if (selectedFiles.length > 0) { handleUpload(); }
+  }, [selectedFiles]);
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files);
@@ -247,62 +251,69 @@ const CreateJob: React.FC = () => {
           </IonToolbar>
         </IonHeader>
         <IonContent className="ion-padding">
-          <div>
-            {/* <h3>Job Information</h3> */}
-          </div>
-          <IonList lines="none">
-            <IonInput 
-              value={newJob.name}
-              label='Job Name:'
-              placeholder='Enter Job Name'
-              onIonInput={handleNameChanged}
-            ></IonInput>
-            <IonInput
-              value={newJob.number?.toString()}
-              type="number"
-              label='Job #:'
-              placeholder='Enter Job #'
-              onIonInput={handleNumberChange}
-            ></IonInput>
-            <IonItem className='noPadding'>
-              <p>Date:</p>
-              <IonDatetimeButton datetime="datetime" onClick={() => setIsDateSelectOpen(true)}></IonDatetimeButton>  
-            </IonItem>
-          </IonList>
-          {newJob.notes && newJob.notes.length > 0 &&
-            <div>
-              <h3>Notes</h3>
-              {displayNotes()}
-            </div>
-          }
-          {newJob.paintColors && newJob.paintColors.length > 0 && (
-            <div>
-              <h3>Paint Colors</h3>
-              {displayPaintColors()}
-            </div>
-          )}
-          <div>
-            <h2>Upload Image or PDF</h2>
-            {newJob?.images && (
-              <div className='mainImageContainer'>
-                {renderImages(newJob.images)}
+          <div className='mainContainer'>
+            <div className='topSection'>
+              <div>
+                {/* <h3>Job Information</h3> */}
               </div>
-            )}
-            <input
-              id="fileInput"
-              type="file"
-              multiple
-              onChange={handleFileChange}
-              accept="image/jpeg, image/png, image/gif, image/pdf, image/jpg"  
-            />
-            <div><IonButton onClick={handleUpload}>Upload Images</IonButton></div>
-            {error && <p style={{ color: 'red' }}>{error}</p>}
+                <IonInput 
+                  value={newJob.name}
+                  label='Job Name:'
+                  placeholder='Enter Job Name'
+                  onIonInput={handleNameChanged}
+                  className='specialPadding'
+                ></IonInput>
+                <IonInput
+                  value={newJob.number?.toString()}
+                  type="number"
+                  label='Job #:'
+                  placeholder='Enter Job #'
+                  onIonInput={handleNumberChange}
+                ></IonInput>
+                <IonItem className='noPadding'>
+                  <p>Date:</p>
+                  <IonDatetimeButton datetime="datetime" onClick={() => setIsDateSelectOpen(true)}></IonDatetimeButton>  
+                </IonItem>
+              {newJob.notes && newJob.notes.length > 0 &&
+                <div>
+                  <h3>Notes</h3>
+                  {displayNotes()}
+                </div>
+              }
+              {newJob.paintColors && newJob.paintColors.length > 0 && (
+                <div>
+                  <h3>Paint Colors</h3>
+                  {displayPaintColors()}
+                </div>
+              )}
+              <div>
+                <h2>Upload Image or PDF</h2>
+                {newJob?.images && (
+                  <div className='mainImageContainer'>
+                    {renderImages(newJob.images)}
+                  </div>
+                )}
+                <input
+                  id="fileInput"
+                  type="file"
+                  multiple
+                  onChange={handleFileChange}
+                  accept="image/jpeg, image/png, image/gif, image/pdf, image/jpg"  
+                />
+                {/* <div><IonButton onClick={handleUpload}>Upload Images</IonButton></div> */}
+                {error && <p style={{ color: 'red' }}>{error}</p>}
+              </div>
+            </div>
+            <div className='bottomSection'>
+              <IonButton onClick={handleAddNote}>Add Note</IonButton>
+              <IonButton onClick={handleAddPaintColor}>Add Color</IonButton>
+              <IonButton className='buttonGreen' onClick={() => handleCreateJob(newJob)}>Save Job</IonButton>
+            </div>
           </div>
-
+{/* MODALS */}
           <IonModal keepContentsMounted={true} isOpen={isDateSelectOpen} onDidDismiss={() => setIsDateSelectOpen(false)}>
             <IonDatetime id="datetime" presentation="date" onIonChange={onDateSelected}></IonDatetime>
           </IonModal>
-
           <IonModal keepContentsMounted={true} isOpen={isConfirmOpen} onDidDismiss={() => setIsConfirmOpen(false)}>
             <IonHeader>
               <IonToolbar>
@@ -313,7 +324,7 @@ const CreateJob: React.FC = () => {
               <IonButton onClick={() => {setIsConfirmOpen(false); history.push('/');}}>Ok</IonButton>
             </IonContent>
           </IonModal>
-
+{/* TOASTS */}
           <IonToast
             className='toastyTrying'
             isOpen={uploadVisible}
@@ -329,12 +340,6 @@ const CreateJob: React.FC = () => {
             duration={3000}
           />
         </IonContent>
-        <IonFooter className='flex'>
-          <IonButton onClick={handleAddNote}>Add Note</IonButton>
-          <IonButton onClick={handleAddPaintColor}>Add Color</IonButton>
-          {/* <IonButton onClick={handleAddPainter}>Add Painter</IonButton> */}
-          <IonButton className='buttonGreen' onClick={() => handleCreateJob(newJob)}>Save Job</IonButton>
-        </IonFooter>
       </IonPage>
     </>
   );

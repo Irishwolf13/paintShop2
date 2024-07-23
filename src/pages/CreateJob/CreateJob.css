@@ -88,3 +88,18 @@ ion-input.customBox {
 .buttonRed {
   --background: rgb(255, 0, 0);
 }
+
+.mainContainer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.topSection {
+  flex: 1 1 80%;
+  overflow-y: auto;
+}
+
+.bottomSection {
+  flex: 0 0 10%;
+}
