@@ -22,6 +22,7 @@ const EditJob: React.FC = () => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [toastVisible, setToastVisible] = useState<boolean>(false);
+  const [toastSavedVisible, setToastSavedVisible] = useState<boolean>(false);
   const [uploadVisible, setUploadVisible] = useState<boolean>(false);
 
   const { currentUser } = useAuth();
@@ -103,10 +104,6 @@ const EditJob: React.FC = () => {
       
   //////////////////////////// DISPLAYS //////////////////////////// 
   const displayNotes = () => {
-    // console.log('current Job')
-    // console.log(currentJob)
-    // console.log('newJob')
-    // console.log(newJob)
     return newJob.notes?.map(note => (
       <div className='paintContainer' key={note.id}>
       <IonList>
@@ -169,7 +166,7 @@ const EditJob: React.FC = () => {
       console.error('Error updating job:', error);
     }
     setHasDifference(false);
-    setIsConfirmOpen(true);
+    setToastSavedVisible(true);
   };
 
   const cancelUpdate = async () => {
@@ -206,8 +203,6 @@ const EditJob: React.FC = () => {
     handleDateChanged(event);
     setIsDateSelectOpen(false);
   };
-
-  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
   //////////////////////////// Dealing with Image Files ////////////////////////////
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -282,16 +277,14 @@ const EditJob: React.FC = () => {
       <IonPage id="main-content">
         <IonHeader>
           <IonToolbar>
-            <IonTitle>Job Information</IonTitle>
+            <IonTitle>{newJob.name}</IonTitle>
             <IonButtons slot="start">
-              {/* <IonMenuButton></IonMenuButton> */}
               <IonBackButton></IonBackButton>
             </IonButtons>
           </IonToolbar>
         </IonHeader>
         <IonContent className="ion-padding">
           <div>
-            {/* <h3>Job Information</h3> */}
           </div>
           <IonList lines="none">
             <IonInput 
@@ -346,17 +339,14 @@ const EditJob: React.FC = () => {
             <IonDatetime id="datetime" presentation="date" onIonChange={onDateSelected} value={newJob.date}></IonDatetime>
           </IonModal>
 
-          <IonModal keepContentsMounted={true} isOpen={isConfirmOpen} onDidDismiss={() => setIsConfirmOpen(false)}>
-            <IonHeader>
-              <IonToolbar>
-                <IonTitle>Job Saved!</IonTitle>
-              </IonToolbar>
-            </IonHeader>
-            <IonContent>
-              <IonButton onClick={() => {setIsConfirmOpen(false);}}>Ok</IonButton>
-            </IonContent>
-          </IonModal>
-
+          <IonToast
+            className='toastySaved'
+            isOpen={toastSavedVisible}
+            onDidDismiss={() => setToastSavedVisible(false)}
+            onClick={() => setToastSavedVisible(false)}
+            message={`${newJob.name} has been saved!`}
+            duration={2000}
+          />
           <IonToast
             className='toastyTrying'
             isOpen={uploadVisible}
@@ -369,7 +359,7 @@ const EditJob: React.FC = () => {
             onDidDismiss={() => setToastVisible(false)}
             onClick={() => setToastVisible(false)}
             message={`Image uploaded successfully!`}
-            duration={3000}
+            duration={2000}
           />
         </IonContent>
         <IonFooter className='flex'>

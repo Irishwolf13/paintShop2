@@ -74,6 +74,13 @@ ion-input.customBox {
   --border-style: solid;
   --border-width: 2px;
 }
+.toastySaved {
+  --border-color: rgb(26, 65, 0);
+  --color: rgb(0, 0, 0);
+  --background: rgb(102, 255, 0);
+  --border-style: solid;
+  --border-width: 2px;
+}
 
 .buttonGreen {
   --background: green;

@@ -1,4 +1,4 @@
-import { InputChangeEventDetail, IonButton, IonButtons, IonContent, IonDatetime, IonDatetimeButton, IonFooter, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonList, IonMenuButton, IonModal, IonPage, IonTextarea, IonTitle, IonToast, IonToolbar } from '@ionic/react';
+import { InputChangeEventDetail, IonBackButton, IonButton, IonButtons, IonContent, IonDatetime, IonDatetimeButton, IonFooter, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonList, IonMenuButton, IonModal, IonPage, IonTextarea, IonTitle, IonToast, IonToolbar } from '@ionic/react';
 import MainMenu from '../../components/MainMenu/MainMenu';
 import { useState } from 'react';
 import { closeCircleOutline } from 'ionicons/icons';
@@ -240,9 +240,9 @@ const CreateJob: React.FC = () => {
       <IonPage id="main-content">
         <IonHeader>
           <IonToolbar>
-            <IonTitle>Job Information</IonTitle>
+            <IonTitle>Create New Job</IonTitle>
             <IonButtons slot="start">
-              <IonMenuButton></IonMenuButton>
+              <IonBackButton></IonBackButton>
             </IonButtons>
           </IonToolbar>
         </IonHeader>

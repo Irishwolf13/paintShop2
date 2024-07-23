@@ -2,6 +2,7 @@ import { IonButton, IonButtons, IonContent, IonHeader, IonMenu, IonMenuButton, I
 import { useHistory } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useRef } from 'react';
+import './MainMenu.css'
 
 const MainMenu: React.FC = () => {
   const { currentUser, logout } = useAuth();
@@ -31,11 +32,11 @@ const MainMenu: React.FC = () => {
       <IonContent className="ion-padding">
         <IonMenuToggle>
           {currentUser ? (
-            <>
+            <div className="menuButtonHolder">
               <IonButton onClick={() => history.push('/')}>Home</IonButton>
-              <IonButton onClick={() => history.push('/createJob')}>Create Job</IonButton>
-              <IonButton color="danger" onClick={handleLogout}>Logout</IonButton>
-            </>
+              <IonButton onClick={() => history.push('/createJob')}>Create New Job</IonButton>
+              <IonButton className='menuBottomButton' color="danger" onClick={handleLogout}>Logout</IonButton>
+            </div>
           ) : (
             <IonButton onClick={() => history.push('/login')}>Login</IonButton>
           )}

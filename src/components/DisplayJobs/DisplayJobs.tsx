@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { IonList, IonItem, IonLabel, IonSearchbar } from "@ionic/react";
+import { IonList, IonItem, IonLabel, IonSearchbar, IonButton } from "@ionic/react";
 import { subscribeToJobs } from "../../firebase/controller";
 import { Job } from "../../interfaces/interface";
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../Store/store';
 import { setCurrentJob, clearCurrentJob } from '../../Store/jobSlice';
 import { useHistory } from 'react-router-dom';
+import './DisplayJobs.css'
 
 const DisplayJobs: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
@@ -54,40 +55,53 @@ const DisplayJobs: React.FC = () => {
   if (error) return <div>{error}</div>;
 
   const handleClicked = (myJob:Job) => {
-    console.log(myJob)
     dispatch(setCurrentJob(myJob))
     history.push('/viewJob');
   }
 
-  const renderJobCard = (job: Job) => (
-    <IonItem key={job.id} onClick={(e) => handleClicked(job)}>
-      <IonLabel>
-        <h3>{`${job.name}`}</h3>
-        <p>{`Job # ${job.number}`}</p>
-      </IonLabel>
-    </IonItem>
-  );
+  const renderJobCard = (job: any) => {
+    const formattedDate = new Intl.DateTimeFormat('en-US', {
+      year: 'numeric',
+      month: 'short'
+    }).format(new Date(job.date));
+  
+    return (
+      <IonItem key={job.id} onClick={(e) => handleClicked(job)}>
+        <IonLabel>
+          <div className="frank">
+            <p>{`${formattedDate}`}</p>
+            <p className="paddingRight">{`${job.name}`}</p>
+          </div>
+          
+          <p>{`Job # ${job.number}`}</p>
+        </IonLabel>
+      </IonItem>
+    );
+  };
 
   const handleUserInput = (e: CustomEvent) => {
     setSearchTerm(e.detail.value);
   };
 
   return (
-    <>
+    <div className="homeContainer">
       <IonSearchbar
         show-clear-button="always"
         value={searchTerm}
         placeholder="Search by Name, Number, or Color"
         onIonInput={(e) => handleUserInput(e)}
       ></IonSearchbar>
-      <IonList>
-        {filteredJobs.length > 0 ? (
-          filteredJobs.map(renderJobCard)
-        ) : (
-          <div>No jobs available</div>
-        )}
-      </IonList>
-    </>
+      <div className="scrollableListContainer">
+        <IonList>
+          {filteredJobs.length > 0 ? (
+            filteredJobs.map(renderJobCard)
+          ) : (
+            <div>No jobs available</div>
+          )}
+        </IonList>
+      </div>
+      <IonButton className='bottomDisplayButton' onClick={() => history.push('/createJob')}>Create New Job</IonButton>
+    </div>
   );
 };
 
