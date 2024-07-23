@@ -258,7 +258,13 @@ const EditJob: React.FC = () => {
   const renderImages = (images: any) => {
     return images.map((image: any, index: number) => (
       <div key={index} className='imageContainer'>
-        <img className='displayThumb' src={image.url} alt={`uploaded-${index}`} />
+        <a href={image.url} target="_blank" rel="noopener noreferrer">
+          <img 
+            className='displayThumb' 
+            src={image.url} 
+            alt={`uploaded-${index}`} 
+          />
+        </a>
         <button className='removeButton' onClick={() => handleRemoveImage(index)}>x</button>
       </div>
     ));

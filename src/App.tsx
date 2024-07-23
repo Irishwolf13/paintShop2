@@ -4,7 +4,7 @@ import { IonReactRouter } from '@ionic/react-router';
 import Home from './pages/Home/Home';
 import Login from './pages/Login/Login';
 import CreateJob from './pages/CreateJob/CreateJob';
-import ViewJob from './pages/EditJob/EditJob';
+import ViewEditJob from './pages/EditJob/EditJob';
 import PublicRoute from './context/PublicRoute';
 import PrivateRoute from './context/PrivateRoute';
 import { AuthProvider } from './context/AuthContext';
@@ -49,7 +49,7 @@ const App: React.FC = () => (
           <PublicRoute exact path="/Login" component={Login} />
           <PrivateRoute exact path="/home" component={Home} />
           <PrivateRoute exact path="/createJob" component={CreateJob} />
-          <PrivateRoute exact path="/viewJob" component={ViewJob} />
+          <PrivateRoute exact path="/viewJob" component={ViewEditJob} />
           <Route exact path="/">
             <Redirect to="/home" />
           </Route>
