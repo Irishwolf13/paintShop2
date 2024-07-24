@@ -1,0 +1,46 @@
+.image-container {
+    position: relative;
+    width: 100%; 
+    max-width: 500px;
+    margin: 0 auto;
+  }
+  
+  .responsive-image {
+    width: 100%;
+    height: auto; 
+    object-fit: contain;
+  }
+
+  .loginTitle {
+    position: absolute;
+    top: 40%; /* Position 50% from the top */
+    left: 50%; /* Position 50% from the left */
+    transform: translate(-50%, -50%); /* Adjusts for exact centering */
+    color: rgb(255, 255, 255); /* Change text color as needed */
+    font-size: 3em; /* Adjust font size as needed */
+    text-align: center; /* Centers text within its container */
+    text-shadow: 
+    0 0 5px #000000,
+    0 0 10px #000000,
+    0 0 10px #000000,
+    0 0 10px #000000,
+    0 0 15px #000000,
+    0 0 15px #000000,
+    0 0 15px #000000,
+    0 0 15px #000000,
+    0 0 30px #000000,
+    0 0 30px #000000,
+    0 0 30px #000000,
+    0 0 30px #000000,
+    0 0 40px #000000,
+    0 0 40px #000000,
+    0 0 50px #000000,
+    0 0 50px #000000,
+    0 0 50px #000000,
+    0 0 60px #000000,
+    0 0 60px #000000,
+    0 0 60px #000000,
+    0 0 60px #000000,
+    0 0 60px #000000,
+    0 0 50px #000000;
+  }

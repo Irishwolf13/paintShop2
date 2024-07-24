@@ -45,6 +45,11 @@ const Login: React.FC = () => {
             </IonToolbar>
           </IonHeader>
           <IonContent className="ion-padding">
+          <div className="image-container">
+            <h1 className='loginTitle'>Paint Kit Login</h1>
+            <img src="https://firebasestorage.googleapis.com/v0/b/paintkit.appspot.com/o/images%2FxjmGbqlR6YhsrjEmFIRhw2mXN4B2%2Fpaintbuckets.jpg?alt=media&token=4758795b-87fb-4976-985b-e9491e6e2bd0" alt="description" className="responsive-image" />
+          </div>
+          <br></br>
             <IonInput
               type="email"
               value={email}
