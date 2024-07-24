@@ -250,8 +250,8 @@ const CreateJob: React.FC = () => {
             </IonButtons>
           </IonToolbar>
         </IonHeader>
-        <IonContent className="ion-padding">
-          <div className='mainContainer'>
+        <IonContent>
+          <div className='mainContainer ion-padding'>
             <div className='topSection'>
               <div>
                 {/* <h3>Job Information</h3> */}
