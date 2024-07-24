@@ -43,3 +43,25 @@
 .marginBottom {
   margin-bottom: 20px;
 }
+
+.toolbar-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0px; /* Adjust the gap value as needed */
+  width: 100%;
+}
+
+.toolbar-grid .ion-button {
+  width: 100%;
+  justify-content: center; /* Centers the button text */
+}
+
+.buttonGreen {
+  --background: green;
+  --color: white;
+}
+
+.buttonRed {
+  --background: red;
+  --color: white;
+}

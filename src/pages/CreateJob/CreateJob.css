@@ -94,15 +94,3 @@ ion-input.customBox {
   flex-direction: column;
   height: 100%;
 }
-
-.topSection {
-  flex: 1 1 80%;
-  overflow-y: auto;
-}
-
-.bottomSection {
-  flex: 0 0 10%;
-  display: flex;
-  align-items: center;
-  padding-top: 10px;
-}

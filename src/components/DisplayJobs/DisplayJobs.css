@@ -2,7 +2,7 @@
     padding-left: 20px;
 }
 
-.frank {
+.titleFlex {
     display: flex;
 }
 
@@ -15,8 +15,4 @@
 .scrollableListContainer {
     flex: 1;
     overflow-y: auto;
-}
-
-.bottomDisplayButton {
-    margin: 16px;
 }

@@ -250,9 +250,7 @@ const CreateJob: React.FC = () => {
             </IonButtons>
           </IonToolbar>
         </IonHeader>
-        <IonContent>
-          <div className='mainContainer ion-padding'>
-            <div className='topSection'>
+        <IonContent className='ion-padding'>
               <div>
                 {/* <h3>Job Information</h3> */}
               </div>
@@ -303,13 +301,7 @@ const CreateJob: React.FC = () => {
                 {/* <div><IonButton onClick={handleUpload}>Upload Images</IonButton></div> */}
                 {error && <p style={{ color: 'red' }}>{error}</p>}
               </div>
-            </div>
-            <div className='bottomSection'>
-              <IonButton onClick={handleAddNote}>Add Note</IonButton>
-              <IonButton onClick={handleAddPaintColor}>Add Color</IonButton>
-              <IonButton className='buttonGreen' onClick={() => handleCreateJob(newJob)}>Save Job</IonButton>
-            </div>
-          </div>
+
 {/* MODALS */}
           <IonModal keepContentsMounted={true} isOpen={isDateSelectOpen} onDidDismiss={() => setIsDateSelectOpen(false)}>
             <IonDatetime id="datetime" presentation="date" onIonChange={onDateSelected}></IonDatetime>
@@ -340,6 +332,13 @@ const CreateJob: React.FC = () => {
             duration={3000}
           />
         </IonContent>
+        <IonFooter>
+          <IonToolbar>
+            <IonButton onClick={handleAddNote}>Add Note</IonButton>
+            <IonButton onClick={handleAddPaintColor}>Add Color</IonButton>
+            <IonButton className='buttonGreen' onClick={() => handleCreateJob(newJob)}>Save Job</IonButton>
+          </IonToolbar>
+        </IonFooter>
       </IonPage>
     </>
   );

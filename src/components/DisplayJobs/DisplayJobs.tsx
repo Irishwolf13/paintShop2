@@ -68,11 +68,10 @@ const DisplayJobs: React.FC = () => {
     return (
       <IonItem key={job.id} onClick={(e) => handleClicked(job)}>
         <IonLabel>
-          <div className="frank">
+          <div className="titleFlex">
             <p>{`${formattedDate}`}</p>
             <p className="paddingRight">{`${job.name}`}</p>
           </div>
-          
           <p>{`Job # ${job.number}`}</p>
         </IonLabel>
       </IonItem>
@@ -100,7 +99,6 @@ const DisplayJobs: React.FC = () => {
           )}
         </IonList>
       </div>
-      <IonButton className='bottomDisplayButton' onClick={() => history.push('/createJob')}>Create New Job</IonButton>
     </div>
   );
 };

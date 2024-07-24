@@ -362,16 +362,20 @@ const EditJob: React.FC = () => {
             duration={2000}
           />
         </IonContent>
-        <IonFooter className='flex'>
-          <IonButton onClick={handleAddNote}>Add Note</IonButton>
-          <IonButton onClick={handleAddPaintColor}>Add Color</IonButton>
-          {/* <IonButton onClick={handleAddPainter}>Add Painter</IonButton> */}
-          {hasDifference && (
-            <IonButton className='buttonGreen' onClick={() => UpdateJob(newJob, currentJob)}>Save Job</IonButton>
-            )}
-          {hasDifference && (
-            <IonButton className='buttonRed' onClick={() => cancelUpdate()}>Cancel Edits</IonButton>
-          )}
+        <IonFooter>
+          <IonToolbar>
+            <div className="toolbar-grid">
+              <IonButton onClick={handleAddNote}>+ Note</IonButton>
+              <IonButton onClick={handleAddPaintColor}>+ Color</IonButton>
+              {/* <IonButton onClick={handleAddPainter}>Add Painter</IonButton> */}
+              {hasDifference && (
+                <IonButton className='buttonGreen' onClick={() => UpdateJob(newJob, currentJob)}>Save</IonButton>
+              )}
+              {hasDifference && (
+                <IonButton className='buttonRed' onClick={() => cancelUpdate()}>Cancel</IonButton>
+              )}
+            </div>
+          </IonToolbar>
         </IonFooter>
       </IonPage>
     </>
