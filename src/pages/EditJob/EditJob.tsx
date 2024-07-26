@@ -210,6 +210,10 @@ const EditJob: React.FC = () => {
   };
 
   //////////////////////////// Dealing with Image Files ////////////////////////////
+  useEffect(() => {
+    if (selectedFiles.length > 0) { handleUpload(); }
+  }, [selectedFiles]);
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files);
@@ -292,6 +296,7 @@ const EditJob: React.FC = () => {
     if (fileInput) fileInput.value = '';
     setSelectedFiles([]);
   };
+  
 
   return (
     <>
@@ -358,7 +363,6 @@ const EditJob: React.FC = () => {
               onChange={handleFileChange}
               accept="image/jpeg, image/png, image/gif, image/pdf, image/jpg"  
             />
-            <div><IonButton onClick={handleUpload}>Upload Images</IonButton></div>
             {error && <p style={{ color: 'red' }}>{error}</p>}
           </div>
 
@@ -368,7 +372,7 @@ const EditJob: React.FC = () => {
 
           <IonModal isOpen={deleteItem} onDidDismiss={() => setDeleteItem(false)}>
             <div className='centerModal'>
-              <h1 className='titleModal'>{`Are you sure you want to delete the show ${currentJob?.name}?`}</h1>
+              <h1 className='titleModal'>{`Are you sure you want to delete ${currentJob?.name}?`}</h1>
               <div className='modalButtonHolder'>
                 <IonButton className='yesButton' onClick={() => handleDeleteJob()}>DELETE</IonButton>
                 <IonButton className='noButton' onClick={() => setDeleteItem(false)}>CANCEL</IonButton>
@@ -409,7 +413,7 @@ const EditJob: React.FC = () => {
           <IonPopover isOpen={showPopover} event={popoverEvent} onDidDismiss={() => setShowPopover(false)} >
             <IonList>
               <IonItem color="danger" className='deleteItem' button onClick={() => {setDeleteItem(true); setShowPopover(false)}}>
-                Delete
+                Delete Job
               </IonItem>
             </IonList>
           </IonPopover>
