@@ -69,13 +69,18 @@ export const updateJob = async (jobId: string, updatedData: Partial<Job>) => {
 };
 
 // Delete a job by ID
-export const deleteJob = async (jobId: string) => {
+export const deleteJob = async (jobId: string): Promise<{ status: number }> => {
   try {
     const jobDocRef = doc(firestore, "jobs", jobId);
     await deleteDoc(jobDocRef);
     console.log("Document successfully deleted");
+
+    // Return a success status
+    return { status: 200 };
   } catch (error) {
     console.error("Error deleting document: ", error);
+
+    // Re-throw the error after logging it
     throw new Error("Could not delete job");
   }
 };

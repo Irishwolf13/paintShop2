@@ -1,8 +1,8 @@
-import { InputChangeEventDetail, IonBackButton, IonButton, IonButtons, IonContent, IonDatetime, IonDatetimeButton, IonFooter, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonList, IonMenuButton, IonModal, IonPage, IonTextarea, IonTitle, IonToast, IonToolbar } from '@ionic/react';
+import { InputChangeEventDetail, IonBackButton, IonButton, IonButtons, IonContent, IonDatetime, IonDatetimeButton, IonFooter, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonList, IonMenuButton, IonModal, IonPage, IonPopover, IonTextarea, IonTitle, IonToast, IonToolbar } from '@ionic/react';
 import MainMenu from '../../components/MainMenu/MainMenu';
 import { useEffect, useState } from 'react';
-import { closeCircleOutline } from 'ionicons/icons';
-import { createJob, uploadImage } from '../../firebase/controller';
+import { closeCircleOutline, ellipsisHorizontal, ellipsisVertical } from 'ionicons/icons';
+import { createJob, deleteJob, uploadImage } from '../../firebase/controller';
 import { Job } from '../../interfaces/interface'
 import './EditJob.css'
 import { useHistory } from 'react-router-dom';
@@ -72,14 +72,6 @@ const EditJob: React.FC = () => {
       setNewJob({ ...newJob, notes: updatedNotes });
     }
   };
-  const handleNoteTitleChange = (event: CustomEvent<InputChangeEventDetail>, myId: number) => {
-    if (newJob.notes) {
-      const updatedNotes = newJob.notes.map(note =>
-        note.id === myId ? { ...note, title: event.detail.value ?? '' } : note
-      );
-      setNewJob({ ...newJob, notes: updatedNotes });
-    }
-  };
 
   //////////////////////////// HANDLE PAINT COLORS //////////////////////////// 
   const handleAddPaintColor = () => {
@@ -108,12 +100,6 @@ const EditJob: React.FC = () => {
       <div className='paintContainer' key={note.id}>
       <IonList>
         <div className='flex'>
-          <IonInput
-            class='paddingLeft'
-            label='Title:'
-            value={note.title}
-            onIonInput={(e) => handleNoteTitleChange(e, note.id)}
-          ></IonInput>
           <IonIcon className='removeMe' onClick={() => handleRemoveNote(note.id)} slot="end" icon={closeCircleOutline} size="small"></IonIcon>
         </div>
         <IonTextarea
@@ -121,6 +107,7 @@ const EditJob: React.FC = () => {
           value={note.note}
           onIonInput={(e) => handleNoteChange(e, note.id)}
           autoGrow={true}
+          placeholder='Enter Note Here'
         ></IonTextarea >
       </IonList>
       </div>
@@ -204,6 +191,24 @@ const EditJob: React.FC = () => {
     setIsDateSelectOpen(false);
   };
 
+  const [deleteItem, setDeleteItem] = useState(false);
+  const onDeleteItem = (event:any) => {
+    console.log('item Delted')
+    setDeleteItem(false);
+  }
+
+  const [showConfirmation, setShowConfirmation] = useState(false);
+
+  //////////////////////////// POPOVERS //////////////////////////// 
+  const [showPopover, setShowPopover] = useState(false);
+  const [popoverEvent, setPopoverEvent] = useState();
+
+  const handleOpenPopover = (e:any) => {
+    e.persist();
+    setPopoverEvent(e);
+    setShowPopover(true);
+  };
+
   //////////////////////////// Dealing with Image Files ////////////////////////////
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -250,6 +255,23 @@ const EditJob: React.FC = () => {
     }
   };
 
+  const handleDeleteJob = async () => {
+    // Check if currentJob exists and has an id
+    if (currentJob?.id) {
+      try {
+        const response = await deleteJob(currentJob.id);
+        if (response.status === 200) {
+          setDeleteItem(false);
+          setShowConfirmation(true); // Show confirmation toast
+          history.push('/');
+        }
+      } catch (error) {
+        console.error('Error deleting job:', error);
+        // Optionally, you can show an error toast/message here as well
+      }
+    }
+  };
+
   const renderImages = (images: any) => {
     return images.map((image: any, index: number) => (
       <div key={index} className='imageContainer'>
@@ -280,6 +302,11 @@ const EditJob: React.FC = () => {
             <IonTitle>{newJob.name}</IonTitle>
             <IonButtons slot="start">
               <IonBackButton></IonBackButton>
+            </IonButtons>
+            <IonButtons slot="end">
+              <IonButton onClick={handleOpenPopover}>
+                <IonIcon slot="icon-only" ios={ellipsisHorizontal} md={ellipsisVertical}></IonIcon>
+              </IonButton>
             </IonButtons>
           </IonToolbar>
         </IonHeader>
@@ -339,6 +366,16 @@ const EditJob: React.FC = () => {
             <IonDatetime id="datetime" presentation="date" onIonChange={onDateSelected} value={newJob.date}></IonDatetime>
           </IonModal>
 
+          <IonModal isOpen={deleteItem} onDidDismiss={() => setDeleteItem(false)}>
+            <div className='centerModal'>
+              <h1 className='titleModal'>{`Are you sure you want to delete the show ${currentJob?.name}?`}</h1>
+              <div className='modalButtonHolder'>
+                <IonButton className='yesButton' onClick={() => handleDeleteJob()}>DELETE</IonButton>
+                <IonButton className='noButton' onClick={() => setDeleteItem(false)}>CANCEL</IonButton>
+              </div>
+            </div>
+          </IonModal>
+
           <IonToast
             className='toastySaved'
             isOpen={toastSavedVisible}
@@ -361,6 +398,21 @@ const EditJob: React.FC = () => {
             message={`Image uploaded successfully!`}
             duration={2000}
           />
+          <IonToast
+            className='toastyTrying'
+            isOpen={showConfirmation}
+            onDidDismiss={() => setShowConfirmation(false)}
+            message={`The show "${currentJob?.name}" has been deleted.`}
+            duration={2000}
+            position="bottom"
+          />
+          <IonPopover isOpen={showPopover} event={popoverEvent} onDidDismiss={() => setShowPopover(false)} >
+            <IonList>
+              <IonItem color="danger" className='deleteItem' button onClick={() => {setDeleteItem(true); setShowPopover(false)}}>
+                Delete
+              </IonItem>
+            </IonList>
+          </IonPopover>
         </IonContent>
         <IonFooter>
           <IonToolbar>

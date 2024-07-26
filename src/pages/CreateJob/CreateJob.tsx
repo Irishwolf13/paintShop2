@@ -10,7 +10,7 @@ import { useAuth } from '../../context/AuthContext';
 
 const CreateJob: React.FC = () => {
   const [newJob, setNewJob] = useState<Job>({
-    notes: [{ id: 1, note: '', title: '' }],
+    notes: [{ id: 1, note: '' }],
     paintColors: [{ id: 1, color: '', brand: '', line: '', finish: '', type: '', orderForm: ''}]
   });
   const myColorInfo = [ 'color', 'brand','line','finish','type', 'orderForm']
@@ -52,7 +52,7 @@ const CreateJob: React.FC = () => {
     const newId = newJob.notes && newJob.notes.length > 0 
                   ? newJob.notes[newJob.notes.length - 1].id + 1
                   : 1;
-    const newNote = { id: newId, note: '', title:'' };
+    const newNote = { id: newId, note: '' };
     setNewJob({ ...newJob, notes: [...(newJob.notes || []), newNote] });
   };
   const handleRemoveNote = (myId: number) => {
@@ -63,14 +63,6 @@ const CreateJob: React.FC = () => {
     if (newJob.notes) {
       const updatedNotes = newJob.notes.map(note =>
         note.id === myId ? { ...note, note: event.detail.value ?? '' } : note
-      );
-      setNewJob({ ...newJob, notes: updatedNotes });
-    }
-  };
-  const handleNoteTitleChange = (event: CustomEvent<InputChangeEventDetail>, myId: number) => {
-    if (newJob.notes) {
-      const updatedNotes = newJob.notes.map(note =>
-        note.id === myId ? { ...note, title: event.detail.value ?? '' } : note
       );
       setNewJob({ ...newJob, notes: updatedNotes });
     }
@@ -103,12 +95,6 @@ const CreateJob: React.FC = () => {
       <div className='paintContainer' key={note.id}>
       <IonList>
         <div className='flex'>
-          <IonInput
-            class='paddingLeft'
-            label='Title:'
-            placeholder='Enter Note Title'
-            onIonInput={(e) => handleNoteTitleChange(e, note.id)}
-          ></IonInput>
           <IonIcon className='removeMe' onClick={() => handleRemoveNote(note.id)} slot="end" icon={closeCircleOutline} size="small"></IonIcon>
         </div>
         <IonTextarea
@@ -125,12 +111,12 @@ const CreateJob: React.FC = () => {
   const displayPaintColors = () => {
     // Define a mapping for colorAttribute to custom labels
     const labelMapping: { [key: string]: string } = {
-      color: 'Enter Pantone Color',
+      color: 'Pantone Color',
       brand: 'Sherwin, Ben Moore, etc.',
       line: 'Emerald, Regal Select, etc.',
       finish: 'Eggshell, Satin, etc.',
       type: 'Indoor, Outdoor, etc.',
-      orderForm: 'www.example.com'
+      orderForm: 'www.sherwin-williams.com'
     };
   
     return newJob.paintColors?.map(paintColor => (
