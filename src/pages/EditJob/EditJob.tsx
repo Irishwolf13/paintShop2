@@ -6,13 +6,15 @@ import { deleteImageFolder, deleteJobByID, uploadImageForJob } from '../../fireb
 import { Job } from '../../interfaces/interface'
 import { useHistory } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../Store/store';
 import { updateJobByID } from '../../firebase/controller'
 import './EditJob.css'
+import { setCurrentJob } from '../../Store/jobSlice';
 
 const EditJob: React.FC = () => {
   const currentJob = useSelector((state: RootState) => state.currentJob.currentJob);
+  const dispatch = useDispatch();
   const [newJob, setNewJob] = useState<Job>(currentJob || {
     notes: [],
     paintColors: []
@@ -178,6 +180,7 @@ const EditJob: React.FC = () => {
     }
     setHasDifference(false);
     setToastSavedVisible(true);
+    dispatch(setCurrentJob(myJob))
   };
 
   const cancelUpdate = async () => {
@@ -351,7 +354,7 @@ const EditJob: React.FC = () => {
                 {renderImages(newJob.images)}
               </div>
             )}
-            <IonButton>Image Carrosel</IonButton>
+            <IonButton onClick={() => history.push('/imageSwiper')}>Image Viewer</IonButton>
             <h4>Add More Images</h4>
             <input
               id="fileInput"

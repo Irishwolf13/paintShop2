@@ -5,6 +5,7 @@ import Home from './pages/Home/Home';
 import Login from './pages/Login/Login';
 import CreateJob from './pages/CreateJob/CreateJob';
 import ViewEditJob from './pages/EditJob/EditJob';
+import ImageSwiper from './pages/ImageSwiper/ImageSwiper';
 import PublicRoute from './context/PublicRoute';
 import PrivateRoute from './context/PrivateRoute';
 import { AuthProvider } from './context/AuthContext';
@@ -50,6 +51,7 @@ const App: React.FC = () => (
           <PrivateRoute exact path="/home" component={Home} />
           <PrivateRoute exact path="/createJob" component={CreateJob} />
           <PrivateRoute exact path="/viewJob" component={ViewEditJob} />
+          <PrivateRoute exact path="/imageSwiper" component={ImageSwiper} />
           <Route exact path="/">
             <Redirect to="/home" />
           </Route>
