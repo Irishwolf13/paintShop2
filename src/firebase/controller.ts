@@ -1,7 +1,7 @@
-import { getFirestore, collection, doc, getDoc, setDoc, deleteDoc, addDoc, QuerySnapshot, onSnapshot, getDocs, where, updateDoc, deleteField, arrayUnion, arrayRemove } from "firebase/firestore";
+import { getFirestore, collection, doc, getDoc, setDoc, deleteDoc, addDoc, QuerySnapshot, onSnapshot, getDocs, where, updateDoc, deleteField, arrayUnion, arrayRemove, query } from "firebase/firestore";
 import { app, db, imageDB } from "./config";
 import { useState, useEffect } from "react";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { deleteObject, getDownloadURL, listAll, ref, uploadBytes } from "firebase/storage";
 import { getAuth } from "firebase/auth";
 import { Job } from '../interfaces/interface'
 
@@ -9,6 +9,7 @@ export const auth = getAuth(app);
 export const firestore = getFirestore(app);
 
 ////////////////////////////////////////// FIREBASE FUNCTIONS //////////////////////////////////////////
+// Create Job
 export const createJob = async (myJob: Job) => {
   try {
     const jobsCollectionRef = collection(firestore, "jobs");
@@ -20,21 +21,36 @@ export const createJob = async (myJob: Job) => {
     throw new Error("Could not create job");
   }
 };
- // Fetch a job by ID
-export const fetchJob = async (jobId: string): Promise<Job | null> => {
-  try {
-    const jobDocRef = doc(firestore, "jobs", jobId);
-    const jobDoc = await getDoc(jobDocRef);
 
-    if (jobDoc.exists()) {
-      return jobDoc.data() as Job;
-    } else {
-      console.log("No such document!");
-      return null;
-    }
+export const checkIfJobNumberExistsInDatabase = async (jobNumber: number) => {
+  try {
+    const jobsCollectionRef = collection(firestore, "jobs");
+    const q = query(jobsCollectionRef, where("number", "==", jobNumber));
+    const querySnapshot = await getDocs(q);
+
+    return !querySnapshot.empty; // Returns true if at least one document with the job number exists
   } catch (error) {
-    console.error("Error fetching document: ", error);
-    throw new Error("Could not fetch job");
+    console.error("Error checking job number in Firestore: ", error);
+    throw new Error("Could not verify job number existence in Firestore");
+  }
+};
+
+export const deleteImageFolder = async (jobNumber: number) => {
+  try {
+    const folderPath = `images/${jobNumber}/`;
+    const folderRef = ref(imageDB, folderPath);
+    const res = await listAll(folderRef);
+
+    // Delete all files inside the folder
+    for (const itemRef of res.items) {
+      await deleteObject(itemRef);
+    }
+
+    console.log(`Folder ${folderPath} and its contents have been deleted.`);
+    return true;
+  } catch (error) {
+    console.error("Error deleting folder and its contents: ", error);
+    throw new Error("Could not delete job folder");
   }
 };
 
@@ -56,8 +72,27 @@ export const fetchAllJobs = async (): Promise<Job[]> => {
   }
 };
 
+////////////////////////////////////////// BY ID FUNCTIONS //////////////////////////////////////////
+ // Fetch a job by ID
+ export const fetchJobByID = async (jobId: string): Promise<Job | null> => {
+  try {
+    const jobDocRef = doc(firestore, "jobs", jobId);
+    const jobDoc = await getDoc(jobDocRef);
+
+    if (jobDoc.exists()) {
+      return jobDoc.data() as Job;
+    } else {
+      console.log("No such document!");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error fetching document: ", error);
+    throw new Error("Could not fetch job");
+  }
+};
+
 // Update a job by ID
-export const updateJob = async (jobId: string, updatedData: Partial<Job>) => {
+export const updateJobByID = async (jobId: string, updatedData: Partial<Job>) => {
   try {
     const jobDocRef = doc(firestore, "jobs", jobId);
     await updateDoc(jobDocRef, updatedData);
@@ -69,7 +104,7 @@ export const updateJob = async (jobId: string, updatedData: Partial<Job>) => {
 };
 
 // Delete a job by ID
-export const deleteJob = async (jobId: string): Promise<{ status: number }> => {
+export const deleteJobByID = async (jobId: string): Promise<{ status: number }> => {
   try {
     const jobDocRef = doc(firestore, "jobs", jobId);
     await deleteDoc(jobDocRef);
@@ -110,9 +145,9 @@ export const subscribeToJobs = (callback: (jobs: Job[]) => void, onError: (error
 };
 
 ////////////////////////////////////////// IMAGE UPLOAD FUNCTION //////////////////////////////////////////
-export const uploadImage = async (userId: string, file: File): Promise<string | null> => {
+export const uploadImageForJob = async (jobNumber: string, file: File): Promise<string | null> => {
   try {
-    const storageRef = ref(imageDB, `images/${userId}/${file.name}`);
+    const storageRef = ref(imageDB, `images/${jobNumber}/${file.name}`);
     const snapshot = await uploadBytes(storageRef, file);
     const downloadURL = await getDownloadURL(snapshot.ref);
     console.log("Image successfully uploaded, URL: ", downloadURL);

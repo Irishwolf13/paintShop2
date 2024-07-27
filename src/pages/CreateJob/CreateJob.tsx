@@ -2,7 +2,7 @@ import { InputChangeEventDetail, IonBackButton, IonButton, IonButtons, IonConten
 import MainMenu from '../../components/MainMenu/MainMenu';
 import { useEffect, useState } from 'react';
 import { closeCircleOutline } from 'ionicons/icons';
-import { createJob, uploadImage } from '../../firebase/controller';
+import { checkIfJobNumberExistsInDatabase, createJob, uploadImageForJob } from '../../firebase/controller';
 import { Job } from '../../interfaces/interface'
 import './CreateJob.css'
 import { useHistory } from 'react-router-dom';
@@ -138,6 +138,20 @@ const CreateJob: React.FC = () => {
   //////////////////////////// Creating Stuff //////////////////////////// 
   const handleCreateJob = async (myJob: Job) => {
     try {
+      if (!myJob.number) {
+        console.error('You must provide a Job number.');
+        return;
+      }else {
+        const numberExists = await checkIfJobNumberExistsInDatabase(myJob.number);
+        if (numberExists) {
+          console.error('Job number already in use.');
+          return;
+        }
+      }
+      if (!myJob.name) {
+        console.error('You must provide a Job Name.');
+        return;
+      }
       if (!myJob.date) myJob.date = new Date().toISOString(); // Checks if date is valid if not, sets to today's date
 
       await createJob(myJob);
@@ -145,6 +159,7 @@ const CreateJob: React.FC = () => {
     } catch (error) {
       console.error('Error updating job:', error);
     }
+    console.log('iran here')
     setNewJob({});
     resetImageInput();
     setIsConfirmOpen(true);
@@ -182,16 +197,17 @@ const CreateJob: React.FC = () => {
   };
 
   const handleUpload = async () => {
-    if (!selectedFiles || !currentUser) {
-      setError("Select files to upload and ensure you are logged in.");
+    if (!selectedFiles || !newJob || !newJob.number) {
+      setError("To upload files please ensure you are logged in, and your Job has a number.");
       return;
     }
   
     try {
+      const myNumber = newJob.number.toString();
       setUploadVisible(true);
   
       for (let file of selectedFiles) {
-        const url = await uploadImage(currentUser.uid, file);
+        const url = await uploadImageForJob(myNumber, file);
         if (url) {
           handleAddImages([url]);
         } else {

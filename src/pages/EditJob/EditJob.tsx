@@ -2,14 +2,14 @@ import { InputChangeEventDetail, IonBackButton, IonButton, IonButtons, IonConten
 import MainMenu from '../../components/MainMenu/MainMenu';
 import { useEffect, useState } from 'react';
 import { closeCircleOutline, ellipsisHorizontal, ellipsisVertical } from 'ionicons/icons';
-import { createJob, deleteJob, uploadImage } from '../../firebase/controller';
+import { deleteImageFolder, deleteJobByID, uploadImageForJob } from '../../firebase/controller';
 import { Job } from '../../interfaces/interface'
-import './EditJob.css'
 import { useHistory } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../Store/store';
-import { updateJob } from '../../firebase/controller'
+import { updateJobByID } from '../../firebase/controller'
+import './EditJob.css'
 
 const EditJob: React.FC = () => {
   const currentJob = useSelector((state: RootState) => state.currentJob.currentJob);
@@ -18,6 +18,8 @@ const EditJob: React.FC = () => {
     paintColors: []
   });
   const myColorInfo = [ 'color', 'brand','line','finish','type', 'orderForm']
+  
+  const maraUID = 'AfBskUOv5IfaPQzdZ2oqDIGHvhx1' // This is temporary, client side security check isn't great, but it's enough for now...
 
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -145,7 +147,7 @@ const EditJob: React.FC = () => {
       const differences = getDifferences(currentJob, myJob);
   
       if (Object.keys(differences).length > 0) {
-        await updateJob(myJob.id, differences);
+        await updateJobByID(myJob.id, differences);
       } else {
         console.log("No changes detected.");
       }
@@ -232,16 +234,17 @@ const EditJob: React.FC = () => {
   };
 
   const handleUpload = async () => {
-    if (!selectedFiles || !currentUser) {
+    if (!selectedFiles || !currentJob || !currentJob.number) {
       setError("Select files to upload and ensure you are logged in.");
       return;
     }
-  
+    
     try {
+      const myNumber = currentJob.number.toString();
       setUploadVisible(true);
   
       for (let file of selectedFiles) {
-        const url = await uploadImage(currentUser.uid, file);
+        const url = await uploadImageForJob(myNumber, file);
         if (url) {
           handleAddImages([url]);
         } else {
@@ -261,9 +264,10 @@ const EditJob: React.FC = () => {
 
   const handleDeleteJob = async () => {
     // Check if currentJob exists and has an id
-    if (currentJob?.id) {
+    if (currentJob?.id && currentJob.number) {
       try {
-        const response = await deleteJob(currentJob.id);
+        const response = await deleteJobByID(currentJob.id);
+        deleteImageFolder(currentJob.number)
         if (response.status === 200) {
           setDeleteItem(false);
           setShowConfirmation(true); // Show confirmation toast
@@ -308,11 +312,13 @@ const EditJob: React.FC = () => {
             <IonButtons slot="start">
               <IonBackButton></IonBackButton>
             </IonButtons>
-            <IonButtons slot="end">
-              <IonButton onClick={handleOpenPopover}>
-                <IonIcon slot="icon-only" ios={ellipsisHorizontal} md={ellipsisVertical}></IonIcon>
-              </IonButton>
-            </IonButtons>
+            {currentUser && currentUser.uid === maraUID && (
+              <IonButtons slot="end">
+                <IonButton onClick={handleOpenPopover}>
+                  <IonIcon slot="icon-only" ios={ellipsisHorizontal} md={ellipsisVertical}></IonIcon>
+                </IonButton>
+              </IonButtons>
+            )}
           </IonToolbar>
         </IonHeader>
         <IonContent className="ion-padding">
