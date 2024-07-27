@@ -19,7 +19,7 @@ const EditJob: React.FC = () => {
   });
   const myColorInfo = [ 'color', 'brand','line','finish','type', 'orderForm']
   
-  const maraUID = 'AfBskUOv5IfaPQzdZ2oqDIGHvhx1' // This is temporary, client side security check isn't great, but it's enough for now...
+  const maraUID = 'xjmGbqlR6YhsrjEmFIRhw2mXN4B2' // This is temporary, client side security check isn't great, but it's enough for now...
 
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -30,6 +30,8 @@ const EditJob: React.FC = () => {
   const { currentUser } = useAuth();
   const history = useHistory();
 
+
+  //////////////////////////// HANDLE TEXTS //////////////////////////// 
   const handleNameChanged = (event: CustomEvent<InputChangeEventDetail>) => {
     setNewJob({ ...newJob, name: event.detail.value ?? '' });
   };
@@ -41,6 +43,7 @@ const EditJob: React.FC = () => {
     setNewJob({ ...newJob, date: event.detail.value ?? '' });
   };
 
+  //////////////////////////// HANDLE IMAGES //////////////////////////// 
   const handleAddImages = (urls: string[]) => {
     setNewJob(prevNewJob => {
       const currentImages = prevNewJob.images || [];
@@ -96,7 +99,7 @@ const EditJob: React.FC = () => {
     }
   };
       
-  //////////////////////////// DISPLAYS //////////////////////////// 
+  //////////////////////////// DISPLAY ITEMS //////////////////////////// 
   const displayNotes = () => {
     return newJob.notes?.map(note => (
       <div className='paintContainer' key={note.id}>
@@ -139,13 +142,32 @@ const EditJob: React.FC = () => {
     )) || [];
   };
 
-  //////////////////////////// Creating Stuff //////////////////////////// 
+  const renderImages = (images: any) => {
+    return images.map((image: any, index: number) => (
+      <div key={index} className='imageContainer'>
+        <a href={image.url} target="_blank" rel="noopener noreferrer">
+          <img 
+            className='displayThumb' 
+            src={image.url} 
+            alt={`uploaded-${index}`} 
+          />
+        </a>
+        <button className='removeButton' onClick={() => handleRemoveImage(index)}>x</button>
+      </div>
+    ));
+  };
+  const resetImageInput = () => {
+    // Clears out the file input so it's blank again
+    const fileInput = document.getElementById('fileInput') as HTMLInputElement;
+    if (fileInput) fileInput.value = '';
+    setSelectedFiles([]);
+  };
+
+  //////////////////////////// CREATING ITEMS //////////////////////////// 
   const UpdateJob = async (myJob: Job, currentJob: any) => { // Allowing `myJob` to be null
-  
     try {
       if (!myJob.id) { return }
-      const differences = getDifferences(currentJob, myJob);
-  
+      const differences = getDifferences(currentJob, myJob); 
       if (Object.keys(differences).length > 0) {
         await updateJobByID(myJob.id, differences);
       } else {
@@ -162,24 +184,21 @@ const EditJob: React.FC = () => {
     if (currentJob !== null) {
       setNewJob(currentJob);
       setHasDifference(false);
-    } else {
-      
     }
   }
 
   const getDifferences = (original: any, updated: any): Partial<Job> => {
     let diff: Partial<Job> = {};
-  
+    
     Object.keys(updated).forEach(key => {
       if (original[key as keyof Job] !== updated[key as keyof Job]) {
         // @ts-ignore
         diff[key as keyof Job] = updated[key as keyof Job];
       }
     });
-  
     return diff;
   };
-
+  
   const [hasDifference, setHasDifference] = useState(false);
   useEffect(() => {
     const differences = getDifferences(currentJob, newJob);
@@ -188,18 +207,13 @@ const EditJob: React.FC = () => {
 
   //////////////////////////// MODALS //////////////////////////// 
   const [isDateSelectOpen, setIsDateSelectOpen] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [deleteItem, setDeleteItem] = useState(false);
+
   const onDateSelected = (event:any) => {
     handleDateChanged(event);
     setIsDateSelectOpen(false);
   };
-
-  const [deleteItem, setDeleteItem] = useState(false);
-  const onDeleteItem = (event:any) => {
-    console.log('item Delted')
-    setDeleteItem(false);
-  }
-
-  const [showConfirmation, setShowConfirmation] = useState(false);
 
   //////////////////////////// POPOVERS //////////////////////////// 
   const [showPopover, setShowPopover] = useState(false);
@@ -224,7 +238,7 @@ const EditJob: React.FC = () => {
       const invalidFiles = files.filter(file => !validTypes.includes(file.type));
   
       if (invalidFiles.length > 0) {
-        setError("Some files have invalid types. Only JPG, PNG, GIF, and PDF are allowed.");
+        setError("Only JPG, PNG, GIF, and PDF are allowed.");
         return;
       } else {
         setError("");
@@ -235,7 +249,7 @@ const EditJob: React.FC = () => {
 
   const handleUpload = async () => {
     if (!selectedFiles || !currentJob || !currentJob.number) {
-      setError("Select files to upload and ensure you are logged in.");
+      setError("Must have Job Number before uploading files.");
       return;
     }
     
@@ -248,7 +262,7 @@ const EditJob: React.FC = () => {
         if (url) {
           handleAddImages([url]);
         } else {
-          throw new Error(`Failed to upload image ${file.name}. URL is null.`);
+          throw new Error(`Failed to upload image ${file.name}.`);
         }
       }
   
@@ -263,44 +277,20 @@ const EditJob: React.FC = () => {
   };
 
   const handleDeleteJob = async () => {
-    // Check if currentJob exists and has an id
     if (currentJob?.id && currentJob.number) {
       try {
         const response = await deleteJobByID(currentJob.id);
         deleteImageFolder(currentJob.number)
         if (response.status === 200) {
           setDeleteItem(false);
-          setShowConfirmation(true); // Show confirmation toast
+          setShowConfirmation(true);
           history.push('/');
         }
       } catch (error) {
         console.error('Error deleting job:', error);
-        // Optionally, you can show an error toast/message here as well
       }
     }
   };
-
-  const renderImages = (images: any) => {
-    return images.map((image: any, index: number) => (
-      <div key={index} className='imageContainer'>
-        <a href={image.url} target="_blank" rel="noopener noreferrer">
-          <img 
-            className='displayThumb' 
-            src={image.url} 
-            alt={`uploaded-${index}`} 
-          />
-        </a>
-        <button className='removeButton' onClick={() => handleRemoveImage(index)}>x</button>
-      </div>
-    ));
-  };
-  const resetImageInput = () => {
-    // Clears out the file input so it's blank again
-    const fileInput = document.getElementById('fileInput') as HTMLInputElement;
-    if (fileInput) fileInput.value = '';
-    setSelectedFiles([]);
-  };
-  
 
   return (
     <>
@@ -356,12 +346,13 @@ const EditJob: React.FC = () => {
             </div>
           )}
           <div>
-            <h2>Upload Image or PDF</h2>
             {newJob?.images && (
               <div className='mainImageContainer'>
                 {renderImages(newJob.images)}
               </div>
             )}
+            <IonButton>Image Carrosel</IonButton>
+            <h4>Add More Images</h4>
             <input
               id="fileInput"
               type="file"

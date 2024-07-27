@@ -7,6 +7,7 @@ export interface Job {
   id?: string;
   name?: string;
   number?: number;
+  creator?: string;
   date?: string;
   painters?: Painter[];
   notes?: Note[];

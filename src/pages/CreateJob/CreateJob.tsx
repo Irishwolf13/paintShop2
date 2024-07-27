@@ -138,6 +138,7 @@ const CreateJob: React.FC = () => {
   //////////////////////////// Creating Stuff //////////////////////////// 
   const handleCreateJob = async (myJob: Job) => {
     try {
+      if (!currentUser?.uid) { return }
       if (!myJob.number) {
         console.error('You must provide a Job number.');
         return;
@@ -153,8 +154,11 @@ const CreateJob: React.FC = () => {
         return;
       }
       if (!myJob.date) myJob.date = new Date().toISOString(); // Checks if date is valid if not, sets to today's date
-
-      await createJob(myJob);
+      
+      // Add in the creator of the job for the future...
+      const jobWithCreator = { ...newJob, creator: currentUser.uid };
+      
+      await createJob(jobWithCreator);
       console.log('Job updated successfully.');
     } catch (error) {
       console.error('Error updating job:', error);
