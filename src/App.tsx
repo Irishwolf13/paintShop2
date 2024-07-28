@@ -39,6 +39,7 @@ import '@ionic/react/css/display.css';
 
 /* Theme variables */
 import './theme/variables.css';
+import PrintJob from './pages/PrintJob/PrintJob';
 
 setupIonicReact();
 
@@ -52,6 +53,7 @@ const App: React.FC = () => (
           <PrivateRoute exact path="/createJob" component={CreateJob} />
           <PrivateRoute exact path="/viewJob" component={ViewEditJob} />
           <PrivateRoute exact path="/imageSwiper" component={ImageSwiper} />
+          <PrivateRoute exact path="/printJob" component={PrintJob} />
           <Route exact path="/">
             <Redirect to="/home" />
           </Route>

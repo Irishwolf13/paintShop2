@@ -67,13 +67,11 @@ const DisplayJobs: React.FC = () => {
   
     return (
       <IonItem key={job.id} onClick={(e) => handleClicked(job)}>
-        <IonLabel>
-          <div className="titleFlex">
-            <p>{`${formattedDate}`}</p>
-            <p className="paddingRight">{`${job.name}`}</p>
-          </div>
-          <p>{`Job # ${job.number}`}</p>
-        </IonLabel>
+        <div className="titleFlex">
+          <h5 className="titleh5">{`${job.name}`}</h5>
+          <p className="titlep">{`Job # ${job.number}`}</p>
+        </div>
+          <p>{`${formattedDate}`}</p>
       </IonItem>
     );
   };

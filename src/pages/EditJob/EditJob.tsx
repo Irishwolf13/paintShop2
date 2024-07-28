@@ -32,6 +32,18 @@ const EditJob: React.FC = () => {
   const { currentUser } = useAuth();
   const history = useHistory();
 
+  const mockJob: Job = {
+    name: 'Sample Job Title'
+  };
+
+  const handlePrintClick = () => {
+    history.push({
+      pathname: '/printJob',
+      state: { job: mockJob }
+    });
+    setShowPopover(false)
+  };
+
 
   //////////////////////////// HANDLE TEXTS //////////////////////////// 
   const handleNameChanged = (event: CustomEvent<InputChangeEventDetail>) => {
@@ -412,6 +424,12 @@ const EditJob: React.FC = () => {
           />
           <IonPopover isOpen={showPopover} event={popoverEvent} onDidDismiss={() => setShowPopover(false)} >
             <IonList>
+              {/* <IonItem color="success" button onClick={() => {history.push('/home'); setShowPopover(false)}}>
+                Print Job
+              </IonItem> */}
+              <IonItem color="success" button onClick={handlePrintClick}>
+                Print Job
+              </IonItem>
               <IonItem color="danger" className='deleteItem' button onClick={() => {setDeleteItem(true); setShowPopover(false)}}>
                 Delete Job
               </IonItem>
